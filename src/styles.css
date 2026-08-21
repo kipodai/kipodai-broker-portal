@@ -208,6 +208,36 @@ button.link-button { background: none; color: var(--color-text-muted); padding: 
 .archive-list a { display: block; padding: 12px 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 6px; text-decoration: none; color: var(--color-text); }
 .archive-list a:hover { border-color: var(--color-primary); }
 
+/* Settings */
+.settings-page h1 { margin-bottom: 4px; }
+.recipient-settings-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 480px;
+}
+.recipient-settings-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 14px;
+}
+.add-recipient-form { display: flex; gap: 8px; max-width: 480px; }
+.add-recipient-form input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
 /* Modal */
 .modal-backdrop {
   position: fixed; inset: 0; background: rgba(17, 24, 39, 0.5);

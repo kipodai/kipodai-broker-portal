@@ -2,10 +2,7 @@ import { json } from './_shared/http.js';
 import { requireRole, ROLES } from '../../server/auth.js';
 import { getReport, appendSendLog } from '../../server/storage.js';
 import { sendReportEmail } from '../../server/email.js';
-
-function getAllowedRecipients() {
-  return (process.env.CLIENT_EMAIL_RECIPIENTS || '').split(',').map((s) => s.trim()).filter(Boolean);
-}
+import { getEffectiveRecipients } from '../../server/recipients.js';
 
 export default async (req) => {
   const secret = process.env.SESSION_SECRET;
@@ -29,12 +26,13 @@ export default async (req) => {
     return json(400, { error: 'week and a non-empty recipients array are required.' });
   }
 
-  // Recipients must come only from the pre-defined env-configured list —
+  // Recipients must come only from the pre-approved list (Blobs-stored if
+  // an admin has edited it, else the CLIENT_EMAIL_RECIPIENTS env seed) —
   // never free text, even if the frontend UI is bypassed via direct API call.
-  const allowed = getAllowedRecipients();
+  const allowed = await getEffectiveRecipients();
   const invalid = recipients.filter((r) => !allowed.includes(r));
   if (invalid.length > 0) {
-    return json(400, { error: `Recipient(s) not in the pre-defined list: ${invalid.join(', ')}` });
+    return json(400, { error: `Recipient(s) not in the pre-approved list: ${invalid.join(', ')}` });
   }
 
   const report = await getReport(week);

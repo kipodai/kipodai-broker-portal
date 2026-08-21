@@ -6,6 +6,7 @@ import Login from './pages/Login.jsx';
 import ReportPage from './pages/ReportPage.jsx';
 import Archive from './pages/Archive.jsx';
 import AdminUpload from './pages/AdminUpload.jsx';
+import AdminSettings from './pages/AdminSettings.jsx';
 
 function ProtectedRoute({ children, adminOnly = false }) {
   const { loading, authenticated, role } = useSession();
@@ -55,6 +56,16 @@ function AppRoutes() {
           <ProtectedRoute adminOnly>
             <Layout>
               <AdminUpload />
+            </Layout>
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/admin/settings"
+        element={(
+          <ProtectedRoute adminOnly>
+            <Layout>
+              <AdminSettings />
             </Layout>
           </ProtectedRoute>
         )}

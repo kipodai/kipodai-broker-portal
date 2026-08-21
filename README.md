@@ -86,8 +86,7 @@ scrub) rather than just deleting the file in a new commit.
   the brand-level totals. Open question before scoping: do the three ABI Studio exports carry
   item-level granularity at all, or would this need a fourth source file? Check against a real
   item-level export before estimating.
-- **Show/hide password toggle on the login page.** A button next to the password field that
-  reveals the typed password in plain text when clicked (standard eye-icon pattern).
+- ~~**Show/hide password toggle on the login page.**~~ Done — `src/pages/Login.jsx`.
 - **Shift Retail Group logo.** Add the company's logo to the report (header and/or footer,
   alongside/replacing the current `BROKER_NAME` text constant in `shared/constants.js`). Needs an
   actual logo file (SVG/PNG) supplied by the user — nothing to fabricate here. Also worth
@@ -97,11 +96,12 @@ scrub) rather than just deleting the file in a new commit.
   chart with a hoverable US map showing U/S/W and In-Stock % per state on hover; states with no
   sales data greyed out. Recharts doesn't do choropleth maps — this needs a mapping library (e.g.
   `react-simple-maps`) plus a US states TopoJSON/GeoJSON, both new dependencies.
-- **Admin-editable email recipient list.** Add an admin-only settings page to add/remove
-  pre-approved recipient addresses (stored in Netlify Blobs, replacing or supplementing the
-  `CLIENT_EMAIL_RECIPIENTS` env var as the source of truth). The Send-report dialog must still
-  only ever offer checkboxes against that stored list — never a free-text address field at send
-  time. See `CLAUDE.md` → "Stack" (email bullet) for the updated rule wording that reflects this.
+- ~~**Admin-editable email recipient list.**~~ Done — `/admin/settings` page
+  (`src/pages/AdminSettings.jsx`), backed by `netlify/functions/recipients.js` (GET/PUT,
+  admin-only) and `server/recipients.js` (shared resolution logic: Blobs-stored list once an
+  admin has ever saved one, else falls back to seeding from `CLIENT_EMAIL_RECIPIENTS`).
+  `email-config.js` and `send-email.js` both call the same `getEffectiveRecipients()` so they can
+  never drift apart — the Send dialog still only ever offers checkboxes, never free text.
 
 ## Status
 

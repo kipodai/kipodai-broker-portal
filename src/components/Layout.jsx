@@ -25,6 +25,7 @@ export default function Layout({ children }) {
           <Link to="/">Latest Report</Link>
           <Link to="/archive">Archive</Link>
           {role === 'admin' && <Link to="/admin/upload">Upload</Link>}
+          {role === 'admin' && <Link to="/admin/settings">Settings</Link>}
           <button type="button" className="link-button" onClick={handleLogout}>Log out</button>
         </nav>
       </header>

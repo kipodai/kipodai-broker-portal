@@ -31,4 +31,6 @@ export const api = {
   getEmailConfig: () => request('/email-config'),
   sendEmail: (week, recipients) => request('/send-email', { method: 'POST', body: JSON.stringify({ week, recipients }) }),
   deleteReport: (week) => request('/delete-report', { method: 'POST', body: JSON.stringify({ week }) }),
+  getRecipients: () => request('/recipients'),
+  setRecipients: (recipients) => request('/recipients', { method: 'PUT', body: JSON.stringify({ recipients }) }),
 };
