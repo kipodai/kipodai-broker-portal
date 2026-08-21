@@ -89,6 +89,12 @@ scrub) rather than just deleting the file in a new commit.
   Item/UPC/SKU/Product Description column anywhere. This can't be built from what's currently
   ingested; needs a new ABI Studio export (e.g. an "Item Performance" report) added to
   `/fixtures` before the parser/UI can be designed against real columns.
+  **Scoping note (2026-08-21, from user):** the item-level export will NOT be a weekly time
+  series — historical week-by-week item data isn't available. Instead it will carry a fixed set
+  of period rollups per item: **LW (last week), L4 (last 4 weeks), L13, L25, L52**. This means
+  the item slicer's UI should be period-comparison cards/a table per selected item(s) — similar
+  in spirit to the brand-level KPI cards, just at item granularity — not a 52-week trend chart
+  like `MainChart.jsx`. Still waiting on the actual export file before building the parser.
 - ~~**Show/hide password toggle on the login page.**~~ Done — `src/pages/Login.jsx`.
 - **Shift Retail Group logo.** Add the company's logo to the report (header and/or footer,
   alongside/replacing the current `BROKER_NAME` text constant in `shared/constants.js`). Needs an
