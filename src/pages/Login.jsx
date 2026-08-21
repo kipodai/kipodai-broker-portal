@@ -10,6 +10,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   if (!loading && authenticated) return <Navigate to="/" replace />;
 
@@ -34,14 +35,25 @@ export default function Login() {
         <h1>Broker Portal</h1>
         <p className="login-subtitle">{CLIENT_BRAND_NAME}</p>
         <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          autoFocus
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={submitting}
-        />
+        <div className="password-field">
+          <input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            autoFocus
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={submitting}
+          />
+          <button
+            type="button"
+            className="password-toggle"
+            onClick={() => setShowPassword((v) => !v)}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            aria-pressed={showPassword}
+          >
+            {showPassword ? 'Hide' : 'Show'}
+          </button>
+        </div>
         {error && <div className="login-error">{error}</div>}
         <button type="submit" disabled={submitting || !password}>
           {submitting ? 'Signing in…' : 'Sign in'}
