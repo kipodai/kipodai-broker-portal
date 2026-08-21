@@ -211,6 +211,10 @@ button.link-button { background: none; color: var(--color-text-muted); padding: 
 @media (max-width: 420px) {
   .kpi-grid { grid-template-columns: 1fr; }
 }
+@media (max-width: 480px) {
+  .chart-card, .geography-panel, .alerts-panel { padding: 10px 8px; }
+  .chart-card h3, .geography-panel h3 { font-size: 13px; padding: 0 4px; }
+}
 
 /* Print */
 @media print {
