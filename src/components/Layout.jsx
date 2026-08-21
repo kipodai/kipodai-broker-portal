@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSession } from '../context/SessionContext.jsx';
 import { api } from '../lib/api.js';
 import { CLIENT_BRAND_NAME } from '../../shared/constants.js';
+import shiftRetailGroupLogo from '../../logos/Shift Retail Group - Black.jpg';
 
 export default function Layout({ children }) {
   const { role, refresh } = useSession();
@@ -18,8 +19,11 @@ export default function Layout({ children }) {
     <div className="app-shell">
       <header className="app-header">
         <div className="app-header-title">
-          <span className="app-name">Broker Portal</span>
-          <span className="app-brand">{CLIENT_BRAND_NAME}</span>
+          <img src={shiftRetailGroupLogo} alt="Shift Retail Group" className="app-header-logo" />
+          <div className="app-header-title-text">
+            <span className="app-name">Broker Portal</span>
+            <span className="app-brand">{CLIENT_BRAND_NAME}</span>
+          </div>
         </div>
         <nav className="app-nav">
           <Link to="/">Latest Report</Link>
