@@ -1,4 +1,4 @@
-// Resolves the current pre-approved email recipient list: the Blobs-stored
+// Resolves the current pre-approved email recipient list: the KV-stored
 // list (server/storage.js getStoredRecipients) if an admin has ever saved
 // one, otherwise falls back to the CLIENT_EMAIL_RECIPIENTS env var as the
 // initial seed. This is the ONLY function that should be used to determine
@@ -26,12 +26,12 @@ export function normalizeRecipients(list) {
   return out;
 }
 
-function envSeedRecipients() {
-  return normalizeRecipients((process.env.CLIENT_EMAIL_RECIPIENTS || '').split(','));
+function envSeedRecipients(clientEmailRecipientsEnvVar) {
+  return normalizeRecipients((clientEmailRecipientsEnvVar || '').split(','));
 }
 
-export async function getEffectiveRecipients() {
-  const stored = await getStoredRecipients();
+export async function getEffectiveRecipients(kv, clientEmailRecipientsEnvVar) {
+  const stored = await getStoredRecipients(kv);
   if (stored && Array.isArray(stored.recipients)) return stored.recipients;
-  return envSeedRecipients();
+  return envSeedRecipients(clientEmailRecipientsEnvVar);
 }

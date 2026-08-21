@@ -1,4 +1,4 @@
-import { json } from './_shared/http.js';
+import { json } from '../../server/http.js';
 import { requireRole, ROLES } from '../../server/auth.js';
 import { getEffectiveRecipients, normalizeRecipients } from '../../server/recipients.js';
 import { saveStoredRecipients } from '../../server/storage.js';
@@ -8,20 +8,20 @@ import { saveStoredRecipients } from '../../server/storage.js';
 // independently re-validates against the same getEffectiveRecipients() on
 // every send, so this endpoint can't be used to bypass that check, only to
 // change what it checks against.
-export default async (req) => {
-  const secret = process.env.SESSION_SECRET;
-  const auth = requireRole(req.headers.get('cookie'), secret, [ROLES.ADMIN]);
+export async function handleRecipients(request, env) {
+  const secret = env.SESSION_SECRET;
+  const auth = await requireRole(request.headers.get('cookie'), secret, [ROLES.ADMIN]);
   if (!auth.ok) return json(auth.status, { error: auth.error });
 
-  if (req.method === 'GET') {
-    const recipients = await getEffectiveRecipients();
+  if (request.method === 'GET') {
+    const recipients = await getEffectiveRecipients(env.REPORTS_KV, env.CLIENT_EMAIL_RECIPIENTS);
     return json(200, { recipients });
   }
 
-  if (req.method === 'PUT') {
+  if (request.method === 'PUT') {
     let body;
     try {
-      body = await req.json();
+      body = await request.json();
     } catch {
       return json(400, { error: 'Invalid JSON body.' });
     }
@@ -33,9 +33,9 @@ export default async (req) => {
     if (invalidInput.length > 0) {
       return json(400, { error: `Not a valid email address: ${invalidInput.join(', ')}` });
     }
-    await saveStoredRecipients({ recipients: normalized });
+    await saveStoredRecipients(env.REPORTS_KV, { recipients: normalized });
     return json(200, { recipients: normalized });
   }
 
   return json(405, { error: 'Method not allowed.' });
-};
+}

@@ -2,26 +2,29 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { SessionProvider, useSession } from './context/SessionContext.jsx';
 import Layout from './components/Layout.jsx';
-import Login from './pages/Login.jsx';
 import ReportPage from './pages/ReportPage.jsx';
 import Archive from './pages/Archive.jsx';
 import AdminUpload from './pages/AdminUpload.jsx';
 import AdminSettings from './pages/AdminSettings.jsx';
+import Landing from './pages/Landing.jsx';
+import ClientPortal from './pages/ClientPortal.jsx';
 
 function ProtectedRoute({ children, adminOnly = false }) {
   const { loading, authenticated, role } = useSession();
   if (loading) return <div className="page-loading">Loading…</div>;
   if (!authenticated) return <Navigate to="/login" replace />;
-  if (adminOnly && role !== 'admin') return <Navigate to="/" replace />;
+  if (adminOnly && role !== 'admin') return <Navigate to="/portal" replace />;
   return children;
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<ClientPortal />} />
+      <Route path="/" element={<Landing />} />
+      <Route path="/client-portal" element={<ClientPortal />} />
       <Route
-        path="/"
+        path="/portal"
         element={(
           <ProtectedRoute>
             <Layout>

@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Renamed from "kipodai-site" (2026-08-21): that name belongs to the
+  // separate marketing-site Worker (different repo) — Cloudflare Worker
+  // names are unique per account, so keeping the same name here would have
+  // deployed this broker-portal over the live marketing site. Named after
+  // this app's real hostname (see below) since the multi-tenant direction
+  // is one Worker deploy per client, not one shared deploy.
+  "name": "shiftretailgroup-broker-portal",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-08-21",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+    "binding": "ASSETS"
+  },
+  // Placeholder — replace with the real namespace id from
+  // `wrangler kv namespace create REPORTS_KV` (requires `wrangler login`
+  // first). Every server/storage.js call and worker/routes/*.js handler
+  // reads this exact binding name.
+  "kv_namespaces": [
+    { "binding": "REPORTS_KV", "id": "REPLACE_WITH_REAL_KV_NAMESPACE_ID" }
+  ]
+  // No "routes"/custom_domain binding here on purpose: kipodai.com and
+  // www.kipodai.com belong to the separate marketing site, not this app
+  // (see DECISIONS.md). This app's real hostname is shiftretailgroup.kipodai.com,
+  // and that DNS record is owned by a Cloudflare Load Balancer (primary =
+  // this Worker's own hostname, backup = Netlify) rather than a Worker
+  // custom-domain binding, so failover to Netlify is possible.
+}

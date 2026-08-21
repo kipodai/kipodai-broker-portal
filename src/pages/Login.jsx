@@ -12,7 +12,7 @@ export default function Login() {
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  if (!loading && authenticated) return <Navigate to="/" replace />;
+  if (!loading && authenticated) return <Navigate to="/portal" replace />;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -21,7 +21,7 @@ export default function Login() {
     try {
       await api.login(password);
       await refresh();
-      navigate('/', { replace: true });
+      navigate('/portal', { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {

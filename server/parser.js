@@ -81,8 +81,11 @@ function cellToString(cell) {
   return cell === null || cell === undefined ? '' : String(cell).trim();
 }
 
-function sheetToMatrix(buffer) {
-  const workbook = XLSX.read(buffer, { type: 'buffer' });
+// `data` is any Uint8Array (a Node Buffer qualifies, since Buffer extends
+// Uint8Array) — using { type: 'array' } rather than { type: 'buffer' } keeps
+// this portable to runtimes with no Buffer global (e.g. Cloudflare Workers).
+function sheetToMatrix(data) {
+  const workbook = XLSX.read(data, { type: 'array' });
   const sheetName = workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
   return XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: '' });
@@ -329,7 +332,7 @@ function classifyByHeaderContent(buffer) {
 }
 
 // Parses the uploaded files together. `files` is an array of
-// { filename: string, buffer: Buffer } — either the 3 required weekly
+// { filename: string, buffer: Uint8Array } — either the 3 required weekly
 // files, or those 3 plus an optional 4th item-level Sales_Performance file.
 // Throws ParseValidationError with a human-readable message on any
 // validation failure — callers must never publish a partial report from a

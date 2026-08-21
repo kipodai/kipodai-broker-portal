@@ -1,12 +1,12 @@
-import { json, isLocalRequest } from './_shared/http.js';
+import { json, isLocalRequest } from '../../server/http.js';
 import { buildSetCookieHeader, safeStringEqual, ROLES } from '../../server/auth.js';
 
-export default async (req) => {
-  if (req.method !== 'POST') return json(405, { error: 'Method not allowed.' });
+export async function handleLogin(request, env) {
+  if (request.method !== 'POST') return json(405, { error: 'Method not allowed.' });
 
   let body;
   try {
-    body = await req.json();
+    body = await request.json();
   } catch {
     return json(400, { error: 'Invalid JSON body.' });
   }
@@ -15,9 +15,9 @@ export default async (req) => {
     return json(400, { error: 'Password is required.' });
   }
 
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  const clientPassword = process.env.CLIENT_PASSWORD;
-  const secret = process.env.SESSION_SECRET;
+  const adminPassword = env.ADMIN_PASSWORD;
+  const clientPassword = env.CLIENT_PASSWORD;
+  const secret = env.SESSION_SECRET;
   if (!adminPassword || !clientPassword || !secret) {
     return json(500, { error: 'Server auth is not configured. Set ADMIN_PASSWORD, CLIENT_PASSWORD, SESSION_SECRET.' });
   }
@@ -30,6 +30,6 @@ export default async (req) => {
     return json(401, { error: 'Incorrect password.' });
   }
 
-  const cookie = buildSetCookieHeader(role, secret, { secure: !isLocalRequest(req) });
+  const cookie = await buildSetCookieHeader(role, secret, { secure: !isLocalRequest(request) });
   return json(200, { role }, { 'set-cookie': cookie });
-};
+}

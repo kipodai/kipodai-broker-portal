@@ -9,20 +9,19 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "netlify:dev": "netlify dev"
+    "worker:dev": "npm run build && wrangler dev"
   },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.0",
     "recharts": "^2.12.7",
-    "xlsx": "^0.18.5",
-    "@netlify/blobs": "^8.1.0"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
     "vite": "^5.4.2",
     "vitest": "^2.0.5",
-    "netlify-cli": "^17.38.0"
+    "wrangler": "^4.125.0"
   }
 }

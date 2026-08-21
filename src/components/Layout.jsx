@@ -26,7 +26,7 @@ export default function Layout({ children }) {
           </div>
         </div>
         <nav className="app-nav">
-          <Link to="/">Latest Report</Link>
+          <Link to="/portal">Latest Report</Link>
           <Link to="/archive">Archive</Link>
           {role === 'admin' && <Link to="/admin/upload">Upload</Link>}
           {role === 'admin' && <Link to="/admin/settings">Settings</Link>}
