@@ -14,12 +14,11 @@
     "not_found_handling": "single-page-application",
     "binding": "ASSETS"
   },
-  // Placeholder — replace with the real namespace id from
-  // `wrangler kv namespace create REPORTS_KV` (requires `wrangler login`
-  // first). Every server/storage.js call and worker/routes/*.js handler
-  // reads this exact binding name.
+  // Created 2026-08-21 via `wrangler kv namespace create REPORTS_KV`.
+  // Every server/storage.js call and worker/routes/*.js handler reads this
+  // exact binding name.
   "kv_namespaces": [
-    { "binding": "REPORTS_KV", "id": "REPLACE_WITH_REAL_KV_NAMESPACE_ID" }
+    { "binding": "REPORTS_KV", "id": "d9b77bfaf19f45769d015eae4fa2c21f" }
   ]
   // No "routes"/custom_domain binding here on purpose: kipodai.com and
   // www.kipodai.com belong to the separate marketing site, not this app
