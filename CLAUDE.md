@@ -12,7 +12,7 @@ Read this at the start of every session. These are durable constraints for the l
 - Excel parsing: **SheetJS only**, server-side. Do not use openpyxl-equivalent strict parsers — two of the three real source files have malformed stylesheet XML that crashes strict parsers. This is permanent, not a one-time gotcha to work around and forget.
 - Storage: Netlify Blobs (or Cloudflare KV), one JSON doc per report week. No database.
 - Narrative: Anthropic API, model `claude-sonnet-4-6`, with a deterministic template fallback if `ANTHROPIC_API_KEY` is unset. The app must fully function with zero optional API keys configured — verify this any time email or narrative code is touched.
-- Email: Resend API. Recipients come only from `CLIENT_EMAIL_RECIPIENTS` env var — never allow free-text recipient entry in the UI, ever, in any future feature.
+- Email: Resend API. Recipients come only from a pre-approved list — never allow free-text recipient entry **at send time**, ever, in any future feature. The approved list itself may become admin-editable via a settings page (planned — see README roadmap), but the Send dialog must always offer checkboxes against that stored list, never an open text field. If the list moves from `CLIENT_EMAIL_RECIPIENTS` env var to a Blobs-backed store, `send-email.js` must validate against whatever the current source of truth is, same as it does today.
 
 ## Data format facts (permanent — the source files won't change shape)
 - File A (`Weekly_Trends`): headers on row 1, ~52 weekly rows.

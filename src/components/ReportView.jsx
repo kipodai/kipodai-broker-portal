@@ -9,6 +9,7 @@ import SendEmailDialog from './SendEmailDialog.jsx';
 import { api } from '../lib/api.js';
 import { fmtMoney, fmtPct, fmtWeek, fmtNumber } from '../lib/format.js';
 import { CLIENT_BRAND_NAME, BROKER_NAME } from '../../shared/constants.js';
+import kipodaiLogo from '../../logos/kipodai.png';
 
 export default function ReportView({ report, role, onDeleted, preview = false }) {
   const navigate = useNavigate();
@@ -122,7 +123,13 @@ export default function ReportView({ report, role, onDeleted, preview = false })
         </section>
       )}
 
-      <footer className="report-footer">Prepared by {BROKER_NAME}</footer>
+      <footer className="report-footer">
+        <div>Prepared by {BROKER_NAME}</div>
+        <div className="powered-by">
+          <img src={kipodaiLogo} alt="Kipod AI" className="powered-by-logo" />
+          <span>Powered by Kipod AI</span>
+        </div>
+      </footer>
 
       {showDialog && emailConfig && (
         emailConfig.configured ? (

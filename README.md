@@ -77,7 +77,31 @@ scrub) rather than just deleting the file in a new commit.
 - Per-user accounts / OAuth instead of two shared passwords.
 - See `CLAUDE.md` → "Roadmap — auto-mode config revisit triggers" for when to revisit the
   Claude Code auto-mode permission setup itself (not an app feature, but relevant to this repo's
-  automation).
+  automation). Note: two of its three triggers have already fired (Netlify deploy target added,
+  git remote connected) — worth a look next session.
+
+### Feature backlog (requested, not yet built)
+
+- **Item-level slicer.** View metrics filtered to one item or a selected set of items, not just
+  the brand-level totals. Open question before scoping: do the three ABI Studio exports carry
+  item-level granularity at all, or would this need a fourth source file? Check against a real
+  item-level export before estimating.
+- **Show/hide password toggle on the login page.** A button next to the password field that
+  reveals the typed password in plain text when clicked (standard eye-icon pattern).
+- **Shift Retail Group logo.** Add the company's logo to the report (header and/or footer,
+  alongside/replacing the current `BROKER_NAME` text constant in `shared/constants.js`). Needs an
+  actual logo file (SVG/PNG) supplied by the user — nothing to fabricate here. Also worth
+  reconciling: `BROKER_NAME` is currently the placeholder `"Kipod AI"`; the real broker name
+  appears to be "Shift Retail Group" (per the admin password) and should probably replace it.
+- **Interactive US map for geography.** Replace/augment the current horizontal-bar top-5-states
+  chart with a hoverable US map showing U/S/W and In-Stock % per state on hover; states with no
+  sales data greyed out. Recharts doesn't do choropleth maps — this needs a mapping library (e.g.
+  `react-simple-maps`) plus a US states TopoJSON/GeoJSON, both new dependencies.
+- **Admin-editable email recipient list.** Add an admin-only settings page to add/remove
+  pre-approved recipient addresses (stored in Netlify Blobs, replacing or supplementing the
+  `CLIENT_EMAIL_RECIPIENTS` env var as the source of truth). The Send-report dialog must still
+  only ever offer checkboxes against that stored list — never a free-text address field at send
+  time. See `CLAUDE.md` → "Stack" (email bullet) for the updated rule wording that reflects this.
 
 ## Status
 
