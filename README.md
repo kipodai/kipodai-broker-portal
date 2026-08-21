@@ -83,9 +83,12 @@ scrub) rather than just deleting the file in a new commit.
 ### Feature backlog (requested, not yet built)
 
 - **Item-level slicer.** View metrics filtered to one item or a selected set of items, not just
-  the brand-level totals. Open question before scoping: do the three ABI Studio exports carry
-  item-level granularity at all, or would this need a fourth source file? Check against a real
-  item-level export before estimating.
+  the brand-level totals. **Confirmed blocked on a 4th data source** (2026-08-21): inspected all
+  three current fixture files' raw sheets directly — Weekly Trends, Trend Analysis, and Geo
+  Performance are each single-sheet, brand-wide rollups (one row per week or per state) with no
+  Item/UPC/SKU/Product Description column anywhere. This can't be built from what's currently
+  ingested; needs a new ABI Studio export (e.g. an "Item Performance" report) added to
+  `/fixtures` before the parser/UI can be designed against real columns.
 - ~~**Show/hide password toggle on the login page.**~~ Done — `src/pages/Login.jsx`.
 - **Shift Retail Group logo.** Add the company's logo to the report (header and/or footer,
   alongside/replacing the current `BROKER_NAME` text constant in `shared/constants.js`). Needs an
