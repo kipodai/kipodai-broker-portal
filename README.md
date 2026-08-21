@@ -82,25 +82,28 @@ scrub) rather than just deleting the file in a new commit.
 
 ### Feature backlog (requested, not yet built)
 
-- **Item-level slicer.** View metrics filtered to one item or a selected set of items, not just
-  the brand-level totals. **Confirmed blocked on a 4th data source** (2026-08-21): inspected all
-  three current fixture files' raw sheets directly — Weekly Trends, Trend Analysis, and Geo
-  Performance are each single-sheet, brand-wide rollups (one row per week or per state) with no
-  Item/UPC/SKU/Product Description column anywhere. This can't be built from what's currently
-  ingested; needs a new ABI Studio export (e.g. an "Item Performance" report) added to
-  `/fixtures` before the parser/UI can be designed against real columns.
-  **Scoping note (2026-08-21, from user):** the item-level export will NOT be a weekly time
-  series — historical week-by-week item data isn't available. Instead it will carry a fixed set
-  of period rollups per item: **LW (last week), L4 (last 4 weeks), L13, L25, L52**. This means
-  the item slicer's UI should be period-comparison cards/a table per selected item(s) — similar
-  in spirit to the brand-level KPI cards, just at item granularity — not a 52-week trend chart
-  like `MainChart.jsx`. Still waiting on the actual export file before building the parser.
+- ~~**Item-level slicer.**~~ Done (2026-08-21) — the real export (`Mamma Chia Sales_Performance_*.xlsx`)
+  turned out to carry **LWk, L4Wk, L13Wk, L26Wk, L52Wk, YTD** period rollups per item (30 items:
+  Prime Item Nbr, Prime Item Desc, UPC), not the L25 originally guessed. Built as:
+  - `server/parser.js` → `parseItemPerformance()`: two-row compound header (metric name ×
+    period), forward-fills SheetJS's merged-cell blanks to recover the metric name per column,
+    maps by header name so column reordering doesn't break it, discovers periods dynamically
+    (no hardcoded list — the YTD period wasn't in the original scoping and this still picked it
+    up), excludes the `Grand Total (...)` row case-insensitively (same helper now shared with
+    Geo_Performance).
+  - `parseUploadedFiles()` now accepts 3 or 4 files — the item file is optional, so old 3-file
+    uploads are unaffected; `metrics.itemPerformance` is `null` when it's not included that week.
+  - `src/components/ItemPerformancePanel.jsx`: period selector + search + checkbox multi-select
+    (defaults to top 5 items by POS $), comparison table with a curated 6-metric subset (mirrors
+    the brand KPI cards) plus a pinned Brand Total row.
+  - `/admin/settings`-style admin-only editing wasn't needed here — no new admin route; the panel
+    renders on the existing report view for both roles.
+  Verified: 21 parser tests (real fixture + synthetic edge cases: reordering, missing column,
+  case-insensitive Grand Total) plus a full 4-file-upload-through-real-functions
+  end-to-end check. See `DECISIONS.md` for what didn't get verified (browser visual check) and why.
 - ~~**Show/hide password toggle on the login page.**~~ Done — `src/pages/Login.jsx`.
-- **Shift Retail Group logo.** Add the company's logo to the report (header and/or footer,
-  alongside/replacing the current `BROKER_NAME` text constant in `shared/constants.js`). Needs an
-  actual logo file (SVG/PNG) supplied by the user — nothing to fabricate here. Also worth
-  reconciling: `BROKER_NAME` is currently the placeholder `"Kipod AI"`; the real broker name
-  appears to be "Shift Retail Group" (per the admin password) and should probably replace it.
+- ~~**Shift Retail Group logo.**~~ Done — `logos/Shift Retail Group - Black.jpg`, shown in the
+  report footer's "Prepared by Shift Retail Group" line (`src/components/ReportView.jsx`).
 - **Interactive US map for geography.** Replace/augment the current horizontal-bar top-5-states
   chart with a hoverable US map showing U/S/W and In-Stock % per state on hover; states with no
   sales data greyed out. Recharts doesn't do choropleth maps — this needs a mapping library (e.g.

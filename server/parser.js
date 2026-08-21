@@ -1,4 +1,5 @@
-// Pure parsing module for the three weekly ABI Studio exports.
+// Pure parsing module for the three weekly ABI Studio exports, plus an
+// optional 4th item-level export.
 // No Netlify runtime dependency — importable directly by Vitest and by
 // netlify/functions/upload.js.
 //
@@ -41,17 +42,40 @@ const EXPECTED_HEADERS_B = [
 // File C's column set can vary ("possibly more") — only State is mandatory.
 const REQUIRED_HEADERS_C = ['State'];
 
+// File D (item-level "Sales_Performance") is optional — a 4th file, added
+// alongside the original three. Its column set is a two-row compound header
+// (metric name x period), so it needs bespoke parsing rather than the
+// single-header-row helpers above. Only these 3 identity columns are
+// required; the periodized metric columns are captured dynamically by
+// whatever's actually present, same "parse by header name" tolerance as
+// File C, since the metric/period set has already changed once (a YTD
+// period was added) between when this file type was first scoped and when
+// the real export arrived.
+const REQUIRED_ID_HEADERS_D = ['Prime Item Nbr', 'Prime Item Desc', 'UPC'];
+
 const FILENAME_SUBSTRINGS = {
   weeklyTrends: 'Weekly_Trends',
   trendAnalysis: 'Trend_Analysis',
   geoPerformance: 'Geo_Performance',
+  itemPerformance: 'Sales_Performance',
+};
+
+const DISPLAY_NAMES = {
+  weeklyTrends: 'Weekly_Trends',
+  trendAnalysis: 'Trend_Analysis',
+  geoPerformance: 'Geo_Performance',
+  itemPerformance: 'Sales_Performance',
 };
 
 const HEADER_ANCHORS = {
   weeklyTrends: 'WM Week',
   trendAnalysis: 'Week',
   geoPerformance: 'State',
+  itemPerformance: 'Prime Item Nbr',
 };
+
+// The 4th file is optional; these three are not.
+const REQUIRED_TYPES = ['weeklyTrends', 'trendAnalysis', 'geoPerformance'];
 
 function cellToString(cell) {
   return cell === null || cell === undefined ? '' : String(cell).trim();
@@ -114,6 +138,13 @@ function rowsFromMatrix(matrix, headerRowIdx) {
     rows.push(obj);
   }
   return { headers, rows };
+}
+
+// Shared across Geo_Performance (State column) and Sales_Performance
+// (Prime Item Nbr column) — both files' last row is a "Grand Total (...)"
+// summary rather than a real state/item, and casing isn't guaranteed.
+function isGrandTotalLabel(label) {
+  return typeof label === 'string' && label.toLowerCase().startsWith('grand total');
 }
 
 function assertHeadersPresent(headers, expected, fileLabel) {
@@ -193,11 +224,86 @@ export function parseGeoPerformance(buffer) {
       return out;
     });
 
-  const isGrandTotal = (state) => state.toLowerCase().startsWith('grand total');
-  const grandTotal = parsedRows.find((row) => isGrandTotal(row.State)) || null;
-  const states = parsedRows.filter((row) => !isGrandTotal(row.State));
+  const grandTotal = parsedRows.find((row) => isGrandTotalLabel(row.State)) || null;
+  const states = parsedRows.filter((row) => !isGrandTotalLabel(row.State));
 
   return { states, grandTotal };
+}
+
+// Sales_Performance: item-level export with a two-row compound header —
+// row 1 has 19 metric names, each merged across a block of period columns
+// (LWk, L4Wk, L13Wk, L26Wk, L52Wk, YTD as of the first real export; not
+// hardcoded, since this list already changed once before the file arrived).
+// Row 2 repeats the period label under each metric. SheetJS flattens merged
+// cells to a value only in the top-left cell of the merge and '' for the
+// rest, so the metric-name row needs forward-filling to recover which
+// metric each column belongs to.
+export function parseItemPerformance(buffer) {
+  const matrix = sheetToMatrix(buffer);
+  const headerRowIdx = findHeaderRowIndex(matrix, HEADER_ANCHORS.itemPerformance);
+  if (headerRowIdx === -1) {
+    throw new ParseValidationError(
+      'Sales_Performance file: could not find the header row (expected a "Prime Item Nbr" column in the first few rows).',
+      { file: 'Sales_Performance' },
+    );
+  }
+
+  const groupRow = matrix[headerRowIdx] || [];
+  const periodRow = matrix[headerRowIdx + 1] || [];
+
+  let lastGroup = '';
+  const columns = groupRow.map((cell, i) => {
+    const group = cellToString(cell);
+    if (group !== '') lastGroup = group;
+    return { index: i, group: lastGroup, period: cellToString(periodRow[i]) };
+  });
+
+  const idColumns = columns.filter((c) => c.period === '');
+  const metricColumns = columns.filter((c) => c.period !== '');
+  const findIdCol = (name) => idColumns.find((c) => c.group === name);
+
+  const missingIdHeaders = REQUIRED_ID_HEADERS_D.filter((h) => !findIdCol(h));
+  if (missingIdHeaders.length > 0) {
+    throw new ParseValidationError(
+      `Sales_Performance: missing expected column(s): ${missingIdHeaders.join(', ')}`,
+      { file: 'Sales_Performance', detail: { missing: missingIdHeaders } },
+    );
+  }
+
+  const itemNbrCol = findIdCol('Prime Item Nbr').index;
+  const itemDescCol = findIdCol('Prime Item Desc').index;
+  const upcCol = findIdCol('UPC').index;
+
+  const periods = [];
+  for (const col of metricColumns) {
+    if (!periods.includes(col.period)) periods.push(col.period);
+  }
+
+  const parsedRows = [];
+  for (let r = headerRowIdx + 2; r < matrix.length; r++) {
+    const raw = matrix[r];
+    if (isBlankRow(raw)) continue;
+    const itemNbr = cellToString(raw[itemNbrCol]);
+    if (itemNbr === '') continue;
+
+    const metrics = {};
+    for (const col of metricColumns) {
+      if (!metrics[col.group]) metrics[col.group] = {};
+      metrics[col.group][col.period] = coerceNumber(raw[col.index]);
+    }
+
+    parsedRows.push({
+      itemNbr,
+      itemDesc: cellToString(raw[itemDescCol]),
+      upc: cellToString(raw[upcCol]),
+      metrics,
+    });
+  }
+
+  const grandTotal = parsedRows.find((row) => isGrandTotalLabel(row.itemNbr)) || null;
+  const items = parsedRows.filter((row) => !isGrandTotalLabel(row.itemNbr));
+
+  return { items, grandTotal, periods };
 }
 
 function classifyByFilename(filename) {
@@ -222,14 +328,16 @@ function classifyByHeaderContent(buffer) {
   return null;
 }
 
-// Parses the three uploaded files together. `files` is an array of
-// { filename: string, buffer: Buffer }. Throws ParseValidationError with a
-// human-readable message on any validation failure — callers must never
-// publish a partial report from a caught error.
+// Parses the uploaded files together. `files` is an array of
+// { filename: string, buffer: Buffer } — either the 3 required weekly
+// files, or those 3 plus an optional 4th item-level Sales_Performance file.
+// Throws ParseValidationError with a human-readable message on any
+// validation failure — callers must never publish a partial report from a
+// caught error.
 export function parseUploadedFiles(files) {
-  if (!Array.isArray(files) || files.length !== 3) {
+  if (!Array.isArray(files) || (files.length !== 3 && files.length !== 4)) {
     throw new ParseValidationError(
-      `Expected exactly 3 files (Weekly_Trends, Trend_Analysis, Geo_Performance) — received ${files?.length ?? 0}.`,
+      `Expected 3 files (Weekly_Trends, Trend_Analysis, Geo_Performance), optionally plus a 4th item-level Sales_Performance file — received ${files?.length ?? 0}.`,
     );
   }
 
@@ -239,23 +347,23 @@ export function parseUploadedFiles(files) {
     if (!type) type = classifyByHeaderContent(file.buffer);
     if (!type) {
       throw new ParseValidationError(
-        `Could not identify "${file.filename}" as Weekly_Trends, Trend_Analysis, or Geo_Performance — check the filename and header row.`,
+        `Could not identify "${file.filename}" as ${Object.values(DISPLAY_NAMES).join(', ')} — check the filename and header row.`,
         { file: file.filename },
       );
     }
     if (byType[type]) {
       throw new ParseValidationError(
-        `Received two files that both look like ${type} (e.g. "${byType[type].filename}" and "${file.filename}") — upload one of each type.`,
+        `Received two files that both look like ${DISPLAY_NAMES[type]} (e.g. "${byType[type].filename}" and "${file.filename}") — upload one of each type.`,
         { file: file.filename },
       );
     }
     byType[type] = file;
   }
 
-  const missingTypes = Object.keys(FILENAME_SUBSTRINGS).filter((t) => !byType[t]);
+  const missingTypes = REQUIRED_TYPES.filter((t) => !byType[t]);
   if (missingTypes.length > 0) {
     throw new ParseValidationError(
-      `Missing required file(s): ${missingTypes.join(', ')}. All three files must be uploaded together.`,
+      `Missing required file(s): ${missingTypes.map((t) => DISPLAY_NAMES[t]).join(', ')}. All three weekly files must be uploaded together.`,
       { detail: { missingTypes } },
     );
   }
@@ -263,6 +371,7 @@ export function parseUploadedFiles(files) {
   const weeklyTrends = parseWeeklyTrends(byType.weeklyTrends.buffer);
   const trendAnalysis = parseTrendAnalysis(byType.trendAnalysis.buffer);
   const geoPerformance = parseGeoPerformance(byType.geoPerformance.buffer);
+  const itemPerformance = byType.itemPerformance ? parseItemPerformance(byType.itemPerformance.buffer) : null;
 
   if (weeklyTrends.length < 4) {
     throw new ParseValidationError(
@@ -271,5 +380,5 @@ export function parseUploadedFiles(files) {
     );
   }
 
-  return { weeklyTrends, trendAnalysis, geoPerformance };
+  return { weeklyTrends, trendAnalysis, geoPerformance, itemPerformance };
 }

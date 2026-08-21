@@ -7,6 +7,7 @@ import {
   parseWeeklyTrends,
   parseTrendAnalysis,
   parseGeoPerformance,
+  parseItemPerformance,
   ParseValidationError,
 } from '../server/parser.js';
 
@@ -25,6 +26,14 @@ function realFixtures() {
     findFixture(['Trend_Analysis', 'Trend Analysis']),
     findFixture(['Geo_Performance', 'Geo Performance']),
   ];
+}
+
+function findItemPerformanceFixture() {
+  return findFixture(['Sales_Performance', 'Sales Performance']);
+}
+
+function realFixturesWithItems() {
+  return [...realFixtures(), findItemPerformanceFixture()];
 }
 
 function makeXlsxBuffer(aoa) {
@@ -180,5 +189,99 @@ describe('filename drift falls back to header detection', () => {
       { filename: 'export 3.xlsx', buffer: c.buffer },
     ];
     expect(() => parseUploadedFiles(renamed)).not.toThrow();
+  });
+});
+
+describe('Sales_Performance (item-level, optional 4th file)', () => {
+  it('parses the real fixture: correct item count, Grand Total excluded, periods discovered dynamically', () => {
+    const fixture = findItemPerformanceFixture();
+    const { items, grandTotal, periods } = parseItemPerformance(fixture.buffer);
+
+    expect(items.length).toBeGreaterThan(0);
+    expect(items.every((i) => !i.itemNbr.toLowerCase().startsWith('grand total'))).toBe(true);
+    expect(grandTotal).not.toBeNull();
+    expect(grandTotal.itemNbr.toLowerCase()).toContain('grand total');
+
+    // Real export includes at least these periods; YTD in particular was
+    // added after this feature was first scoped, so this pins that the
+    // dynamic period-discovery approach (not a hardcoded list) picked it up.
+    expect(periods).toEqual(expect.arrayContaining(['LWk', 'L4Wk', 'L13Wk', 'L52Wk', 'YTD']));
+  });
+
+  it('every item has an itemDesc, a UPC, and at least one populated metric', () => {
+    const fixture = findItemPerformanceFixture();
+    const { items } = parseItemPerformance(fixture.buffer);
+    for (const item of items) {
+      expect(item.itemDesc.length).toBeGreaterThan(0);
+      expect(item.upc.length).toBeGreaterThan(0);
+      expect(Object.keys(item.metrics).length).toBeGreaterThan(0);
+    }
+  });
+
+  it('blank cells become null, never 0 (real fixture has genuinely sparse new-item rows)', () => {
+    const fixture = findItemPerformanceFixture();
+    const { items } = parseItemPerformance(fixture.buffer);
+    const anyNullFound = items.some((item) => Object.values(item.metrics)
+      .some((periodValues) => Object.values(periodValues).some((v) => v === null)));
+    expect(anyNullFound).toBe(true);
+  });
+
+  it('parseUploadedFiles accepts the optional 4th file and returns itemPerformance', () => {
+    const parsed = parseUploadedFiles(realFixturesWithItems());
+    expect(parsed.itemPerformance).not.toBeNull();
+    expect(parsed.itemPerformance.items.length).toBeGreaterThan(0);
+  });
+
+  it('parseUploadedFiles still works with exactly 3 files, itemPerformance is null', () => {
+    const parsed = parseUploadedFiles(realFixtures());
+    expect(parsed.itemPerformance).toBeNull();
+  });
+
+  it('rejects 5 files', () => {
+    const [a, b, c, d] = realFixturesWithItems();
+    expect(() => parseUploadedFiles([a, b, c, d, a])).toThrow(ParseValidationError);
+  });
+
+  it('survives metric-group column reordering (header-name based mapping, not position)', () => {
+    // Instock % block (2 cols) placed BEFORE the POS $ block (2 cols) — the
+    // reverse of the real file's order — to prove columns are mapped by
+    // header name, not by position.
+    const groupRow = ['Prime Item Nbr', 'Prime Item Desc', 'UPC', 'Instock %', '', 'POS $', ''];
+    const periodRow = ['', '', '', 'LWk', 'L4Wk', 'LWk', 'L4Wk'];
+    const dataRow = ['1001', 'Widget', '00000000001', 0.95, 0.9, 100, 400];
+    const totalRow = ['Grand Total (1 Items)', '-', '-', 0.95, 0.9, 100, 400];
+    const buffer = makeXlsxBuffer([groupRow, periodRow, dataRow, totalRow]);
+
+    const { items, grandTotal } = parseItemPerformance(buffer);
+    expect(items).toHaveLength(1);
+    expect(items[0].metrics['POS $'].LWk).toBe(100);
+    expect(items[0].metrics['POS $'].L4Wk).toBe(400);
+    expect(items[0].metrics['Instock %'].LWk).toBe(0.95);
+    expect(items[0].metrics['Instock %'].L4Wk).toBe(0.9);
+    expect(grandTotal.metrics['POS $'].LWk).toBe(100);
+  });
+
+  it('throws ParseValidationError naming the missing column when UPC is absent', () => {
+    const groupRow = ['Prime Item Nbr', 'Prime Item Desc', 'POS $', ''];
+    const periodRow = ['', '', 'LWk', 'L4Wk'];
+    const dataRow = ['1001', 'Widget', 100, 400];
+    const buffer = makeXlsxBuffer([groupRow, periodRow, dataRow]);
+    expect(() => parseItemPerformance(buffer)).toThrow(ParseValidationError);
+    try {
+      parseItemPerformance(buffer);
+    } catch (err) {
+      expect(err.message).toContain('UPC');
+    }
+  });
+
+  it('excludes "grand total" case-insensitively from the items list', () => {
+    const groupRow = ['Prime Item Nbr', 'Prime Item Desc', 'UPC', 'POS $', ''];
+    const periodRow = ['', '', '', 'LWk', 'L4Wk'];
+    const dataRow = ['1001', 'Widget', '00000000001', 100, 400];
+    const totalRow = ['grand total (1 items)', '-', '-', 100, 400];
+    const buffer = makeXlsxBuffer([groupRow, periodRow, dataRow, totalRow]);
+    const { items, grandTotal } = parseItemPerformance(buffer);
+    expect(items).toHaveLength(1);
+    expect(grandTotal).not.toBeNull();
   });
 });

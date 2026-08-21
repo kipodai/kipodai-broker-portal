@@ -344,7 +344,7 @@ function generateAlerts({ weeklyMetrics, otifMetrics, sortedWeeklyTrends }) {
 
 // Main entry point. `parsed` is the return value of parseUploadedFiles().
 export function computeMetrics(parsed) {
-  const { weeklyTrends, trendAnalysis, geoPerformance } = parsed;
+  const { weeklyTrends, trendAnalysis, geoPerformance, itemPerformance } = parsed;
 
   const weeklyMetrics = computeWeeklyTrendsMetrics(weeklyTrends);
   const otifMetrics = computeOtifMetrics(trendAnalysis);
@@ -373,6 +373,11 @@ export function computeMetrics(parsed) {
     mainChartSeries: publicWeeklyMetrics.mainChartSeries,
     otif: otifMetrics,
     geography: geoMetrics,
+    // Already period-rolled-up by ABI Studio (LWk/L4Wk/L13Wk/L26Wk/L52Wk/YTD
+    // — the exact set isn't hardcoded, see server/parser.js) — no further
+    // derivation needed here, just pass through. null when the optional 4th
+    // file wasn't uploaded this week.
+    itemPerformance: itemPerformance || null,
     alerts,
   };
 }

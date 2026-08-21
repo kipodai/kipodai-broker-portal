@@ -19,6 +19,10 @@ Thumbs.db
 # Claude Code session/runtime state (not project source)
 .claude/
 
+# Written into this folder by a different tool (Codex) working on unrelated
+# projects on this machine — not part of this project, never commit it.
+AGENTS.md
+
 # Logs
 *.log
 npm-debug.log*

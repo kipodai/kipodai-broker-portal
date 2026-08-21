@@ -19,13 +19,13 @@ export default async (req) => {
   try {
     formData = await req.formData();
   } catch {
-    return json(400, { error: 'Expected multipart/form-data with a "files" field containing 3 files.' });
+    return json(400, { error: 'Expected multipart/form-data with a "files" field containing 3 or 4 files.' });
   }
 
   const mode = formData.get('mode') === 'publish' ? 'publish' : 'preview';
   const fileEntries = formData.getAll('files');
-  if (fileEntries.length !== 3) {
-    return json(400, { error: `Expected exactly 3 files, received ${fileEntries.length}.` });
+  if (fileEntries.length !== 3 && fileEntries.length !== 4) {
+    return json(400, { error: `Expected 3 files, or 4 including the optional item-level file, received ${fileEntries.length}.` });
   }
 
   const files = [];

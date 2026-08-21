@@ -63,7 +63,10 @@ export default function AdminUpload() {
   return (
     <div className="upload-page">
       <h1>Upload Weekly Files</h1>
-      <p className="panel-subtitle">Drop all three ABI Studio exports (Weekly_Trends, Trend_Analysis, Geo_Performance) at once.</p>
+      <p className="panel-subtitle">
+        Drop the three required ABI Studio exports (Weekly_Trends, Trend_Analysis, Geo_Performance),
+        plus optionally a 4th item-level Sales_Performance export, all at once.
+      </p>
 
       <div
         className={`dropzone ${dragOver ? 'dropzone-active' : ''}`}
@@ -82,14 +85,14 @@ export default function AdminUpload() {
         <label htmlFor="file-input" className="dropzone-label">
           {files.length > 0
             ? `${files.length} file(s) selected: ${files.map((f) => f.name).join(', ')}`
-            : 'Drag & drop 3 .xlsx files here, or click to browse'}
+            : 'Drag & drop 3 (or 4, with item-level data) .xlsx files here, or click to browse'}
         </label>
       </div>
 
       {error && <div className="login-error">{error}</div>}
 
       <div className="upload-actions">
-        <button type="button" onClick={handlePreview} disabled={files.length !== 3 || loading}>
+        <button type="button" onClick={handlePreview} disabled={(files.length !== 3 && files.length !== 4) || loading}>
           {loading ? 'Validating…' : 'Preview'}
         </button>
         {previewReport && !published && (

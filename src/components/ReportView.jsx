@@ -5,11 +5,13 @@ import MainChart from './MainChart.jsx';
 import AlertsPanel from './AlertsPanel.jsx';
 import GeographyPanel from './GeographyPanel.jsx';
 import SupplyChainStrip from './SupplyChainStrip.jsx';
+import ItemPerformancePanel from './ItemPerformancePanel.jsx';
 import SendEmailDialog from './SendEmailDialog.jsx';
 import { api } from '../lib/api.js';
 import { fmtMoney, fmtPct, fmtWeek, fmtNumber } from '../lib/format.js';
 import { CLIENT_BRAND_NAME, BROKER_NAME } from '../../shared/constants.js';
 import kipodaiLogo from '../../logos/kipodai.png';
+import shiftRetailGroupLogo from '../../logos/Shift Retail Group - Black.jpg';
 
 export default function ReportView({ report, role, onDeleted, preview = false }) {
   const navigate = useNavigate();
@@ -110,6 +112,10 @@ export default function ReportView({ report, role, onDeleted, preview = false })
         <SupplyChainStrip otif={metrics.otif} />
       </section>
 
+      <section>
+        <ItemPerformancePanel itemPerformance={metrics.itemPerformance} />
+      </section>
+
       {role === 'admin' && !preview && sendLog.length > 0 && (
         <section className="send-history">
           <h3>Send history</h3>
@@ -124,7 +130,10 @@ export default function ReportView({ report, role, onDeleted, preview = false })
       )}
 
       <footer className="report-footer">
-        <div>Prepared by {BROKER_NAME}</div>
+        <div className="prepared-by">
+          <img src={shiftRetailGroupLogo} alt="Shift Retail Group" className="prepared-by-logo" />
+          <span>Prepared by {BROKER_NAME}</span>
+        </div>
         <div className="powered-by">
           <img src={kipodaiLogo} alt="Kipod AI" className="powered-by-logo" />
           <span>Powered by Kipod AI</span>
