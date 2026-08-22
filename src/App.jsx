@@ -6,7 +6,7 @@ import ReportPage from './pages/ReportPage.jsx';
 import Archive from './pages/Archive.jsx';
 import AdminUpload from './pages/AdminUpload.jsx';
 import AdminSettings from './pages/AdminSettings.jsx';
-import Landing from './pages/Landing.jsx';
+import Login from './pages/Login.jsx';
 import ClientPortal from './pages/ClientPortal.jsx';
 
 function ProtectedRoute({ children, adminOnly = false }) {
@@ -20,9 +20,18 @@ function ProtectedRoute({ children, adminOnly = false }) {
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<ClientPortal />} />
-      <Route path="/" element={<Landing />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/client-portal" element={<ClientPortal />} />
+      <Route
+        path="/"
+        element={(
+          <ProtectedRoute>
+            <Layout>
+              <ReportPage />
+            </Layout>
+          </ProtectedRoute>
+        )}
+      />
       <Route
         path="/portal"
         element={(
