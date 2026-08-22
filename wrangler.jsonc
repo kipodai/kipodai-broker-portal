@@ -19,11 +19,18 @@
   // exact binding name.
   "kv_namespaces": [
     { "binding": "REPORTS_KV", "id": "d9b77bfaf19f45769d015eae4fa2c21f" }
+  ],
+  // Bound 2026-08-22: shiftretailgroup.kipodai.com -> this Worker, via
+  // wrangler-managed Custom Domain (NOT a manual CNAME to the workers.dev
+  // hostname — that pattern 522s, confirmed during the earlier failover
+  // investigation). custom_domain:true means `wrangler deploy` creates and
+  // owns the DNS record itself. Only kipodai.com/www.kipodai.com are
+  // excluded (separate marketing-site Worker, now its own project — see
+  // DECISIONS.md). GitHub-Actions DNS failover to Netlify deferred until
+  // the Netlify backup site's 401 ("private by default") is resolved —
+  // a Custom Domain binding isn't a plain CNAME the failover script can
+  // flip, so that script needs a redesign before it's wired back in.
+  "routes": [
+    { "pattern": "shiftretailgroup.kipodai.com", "custom_domain": true }
   ]
-  // No "routes"/custom_domain binding here on purpose: kipodai.com and
-  // www.kipodai.com belong to the separate marketing site, not this app
-  // (see DECISIONS.md). This app's real hostname is shiftretailgroup.kipodai.com,
-  // and that DNS record is owned by a Cloudflare Load Balancer (primary =
-  // this Worker's own hostname, backup = Netlify) rather than a Worker
-  // custom-domain binding, so failover to Netlify is possible.
 }
