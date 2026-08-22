@@ -2,6 +2,9 @@
 
 Read this at the start of every session. These are durable constraints for the life of the project, not one-time build instructions. The full build spec lives in `claude_code_prompt_broker_portal.md` in this same folder — read that too if a fresh phase is starting.
 
+## First step, next session
+**Before anything else, revisit the auto-mode config with the user** (see "Roadmap — auto-mode config revisit triggers" below). The production trigger fired 2026-08-22 and was explained to the user by email but no decision was made before the session ended — raise it as the opening topic, don't wait for it to come up.
+
 ## Data handling — non-negotiable
 - The `/fixtures` folder contains **real supplier POS data** (Mamma Chia / Walmart). It must **never** be committed to git. Confirm `.gitignore` includes `fixtures/` before any commit, every session — don't assume a prior session set this correctly.
 - Never print full rows of fixture data into commit messages, PR descriptions, or any file that gets pushed.
