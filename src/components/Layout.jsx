@@ -1,9 +1,13 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useSession } from '../context/SessionContext.jsx';
 import { api } from '../lib/api.js';
 import { CLIENT_BRAND_NAME } from '../../shared/constants.js';
 import shiftRetailGroupLogo from '../../logos/Shift Retail Group - Black.jpg';
+
+function navLinkClass({ isActive }) {
+  return isActive ? 'active-nav-link' : undefined;
+}
 
 export default function Layout({ children }) {
   const { role, refresh } = useSession();
@@ -26,10 +30,11 @@ export default function Layout({ children }) {
           </div>
         </div>
         <nav className="app-nav">
-          <Link to="/portal">Latest Report</Link>
-          <Link to="/archive">Archive</Link>
-          {role === 'admin' && <Link to="/admin/upload">Upload</Link>}
-          {role === 'admin' && <Link to="/admin/settings">Settings</Link>}
+          <NavLink to="/portal" className={navLinkClass}>Latest Report</NavLink>
+          <NavLink to="/archive" className={navLinkClass}>Archive</NavLink>
+          {role === 'admin' && <NavLink to="/admin/upload" className={navLinkClass}>Upload</NavLink>}
+          {role === 'admin' && <NavLink to="/admin/settings" className={navLinkClass}>Settings</NavLink>}
+          <span className="role-badge">{role}</span>
           <button type="button" className="link-button" onClick={handleLogout}>Log out</button>
         </nav>
       </header>

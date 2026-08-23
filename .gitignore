@@ -7,10 +7,12 @@ node_modules/
 # Build output
 dist/
 .netlify/
+.wrangler/
 
 # Env / secrets
 .env
 .env.local
+.dev.vars
 
 # Editor / OS
 .DS_Store

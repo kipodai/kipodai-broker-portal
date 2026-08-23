@@ -22,13 +22,17 @@ export default function SupplyChainStrip({ otif }) {
       ) : (
         <ResponsiveContainer width="100%" height={isMobile ? 200 : 180}>
           <LineChart data={data} margin={{ top: 10, right: isMobile ? 4 : 20, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-            <XAxis dataKey="week" tick={{ fontSize: tickFontSize }} interval={tickInterval} />
-            <YAxis domain={[0, 100]} tickFormatter={(v) => `${v}%`} tick={{ fontSize: tickFontSize }} width={isMobile ? 30 : 40} />
-            <Tooltip formatter={(v) => (v === null ? '—' : `${v.toFixed(1)}%`)} labelFormatter={(week) => fmtWeek(week)} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#edeef1" />
+            <XAxis dataKey="week" tick={{ fontSize: tickFontSize, fill: '#676d7a' }} interval={tickInterval} stroke="#d3d7de" />
+            <YAxis domain={[0, 100]} tickFormatter={(v) => `${v}%`} tick={{ fontSize: tickFontSize, fill: '#676d7a' }} width={isMobile ? 30 : 40} stroke="#d3d7de" />
+            <Tooltip
+              formatter={(v) => (v === null ? '—' : `${v.toFixed(1)}%`)}
+              labelFormatter={(week) => fmtWeek(week)}
+              contentStyle={{ borderRadius: 8, border: '1px solid #e3e6eb', fontSize: 13, boxShadow: '0 4px 10px rgba(18,21,28,0.08)' }}
+            />
             <Legend wrapperStyle={{ fontSize: isMobile ? 11 : 13 }} />
-            <Line type="monotone" dataKey="onTimePct" name="On Time %" stroke="#1f6feb" dot={false} strokeWidth={2} connectNulls />
-            <Line type="monotone" dataKey="inFullPct" name="In Full %" stroke="#2e9e6b" dot={false} strokeWidth={2} connectNulls />
+            <Line type="monotone" dataKey="onTimePct" name="On Time %" stroke="#2a78d6" dot={false} strokeWidth={2} connectNulls />
+            <Line type="monotone" dataKey="inFullPct" name="In Full %" stroke="#1baf7a" dot={false} strokeWidth={2} connectNulls />
           </LineChart>
         </ResponsiveContainer>
       )}

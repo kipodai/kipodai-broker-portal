@@ -3,7 +3,7 @@
 Read this at the start of every session. These are durable constraints for the life of the project, not one-time build instructions. The full build spec lives in `claude_code_prompt_broker_portal.md` in this same folder — read that too if a fresh phase is starting.
 
 ## First step, next session
-**Before anything else, revisit the auto-mode config with the user** (see "Roadmap — auto-mode config revisit triggers" below). The production trigger fired 2026-08-22 and was explained to the user by email but no decision was made before the session ended — raise it as the opening topic, don't wait for it to come up.
+**Revisit the auto-mode config decision again.** On 2026-08-22, asked right after the production-deploy trigger fired, the user chose to leave auto-mode as-is for now — but asked for it to be re-raised next session rather than treated as permanently settled. Raise it as the opening topic; see `DECISIONS.md`'s "Auto-mode config revisit, actioned (2026-08-22)" entry for the full context.
 
 ## Data handling — non-negotiable
 - The `/fixtures` folder contains **real supplier POS data** (Mamma Chia / Walmart). It must **never** be committed to git. Confirm `.gitignore` includes `fixtures/` before any commit, every session — don't assume a prior session set this correctly.
@@ -42,7 +42,7 @@ Read this at the start of every session. These are durable constraints for the l
 
 ## Roadmap — auto-mode config revisit triggers
 - The auto-mode permission setup needs to reflect the current deploy target. It is **not** set-and-forget.
-- **Trigger fired 2026-08-22, not yet actioned: the Cloudflare Worker production deploy went live** at `shiftretailgroup.kipodai.com`, publicly reachable with real login. Per this section's own rule, auto-mode config should be revisited now that a real production domain is serving live traffic — flag this to the user rather than assuming the existing setup still fits.
+- **Trigger fired 2026-08-22 (Worker production deploy live at `shiftretailgroup.kipodai.com`, real login, publicly reachable) — actioned 2026-08-22: user decided to leave auto-mode config as-is for now.** Don't re-raise this trigger; it's resolved. See `DECISIONS.md` for the full note.
 - Revisit again if any of these happen, since each further expands auto-mode's blast radius:
   - Resend send capability goes live for real (not a dry-run/template path).
   - DNS failover to Netlify actually gets wired up and tested (currently designed but inert — see Stack section).

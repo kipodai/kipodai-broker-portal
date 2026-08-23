@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useSession } from '../context/SessionContext.jsx';
 import { api } from '../lib/api.js';
-import { CLIENT_BRAND_NAME } from '../../shared/constants.js';
 
 export default function Login() {
   const { authenticated, loading, refresh } = useSession();
@@ -32,8 +31,8 @@ export default function Login() {
   return (
     <div className="login-page">
       <form className="login-card" onSubmit={handleSubmit}>
-        <h1>Broker Portal</h1>
-        <p className="login-subtitle">{CLIENT_BRAND_NAME}</p>
+        <h1>Shift Retail Group</h1>
+        <p className="login-subtitle">Secure report access</p>
         <label htmlFor="password">Password</label>
         <div className="password-field">
           <input

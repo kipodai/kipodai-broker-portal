@@ -84,6 +84,7 @@ export default function ReportView({ report, role, onDeleted, preview = false })
       </header>
 
       <section className="exec-summary">
+        <p className="exec-summary-label">Executive Summary</p>
         <p>{narrative.text}</p>
       </section>
 

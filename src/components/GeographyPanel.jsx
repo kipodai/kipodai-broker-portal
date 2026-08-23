@@ -17,11 +17,14 @@ export default function GeographyPanel({ geography }) {
           <p className="panel-subtitle">Top 5 states by sales</p>
           <ResponsiveContainer width="100%" height={isMobile ? 200 : 220}>
             <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: isMobile ? 8 : 20, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#eee" horizontal={false} />
-              <XAxis type="number" tickFormatter={(v) => `$${Math.round(v / 1000)}k`} tick={{ fontSize: tickFontSize }} />
-              <YAxis type="category" dataKey="state" tick={{ fontSize: tickFontSize + 1 }} width={isMobile ? 32 : 40} />
-              <Tooltip formatter={(v) => fmtMoney(v)} />
-              <Bar dataKey="posDollars" fill="#1f6feb" radius={[0, 4, 4, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#edeef1" horizontal={false} />
+              <XAxis type="number" tickFormatter={(v) => `$${Math.round(v / 1000)}k`} tick={{ fontSize: tickFontSize, fill: '#676d7a' }} stroke="#d3d7de" />
+              <YAxis type="category" dataKey="state" tick={{ fontSize: tickFontSize + 1, fill: '#676d7a' }} width={isMobile ? 32 : 40} stroke="#d3d7de" />
+              <Tooltip
+                formatter={(v) => fmtMoney(v)}
+                contentStyle={{ borderRadius: 8, border: '1px solid #e3e6eb', fontSize: 13, boxShadow: '0 4px 10px rgba(18,21,28,0.08)' }}
+              />
+              <Bar dataKey="posDollars" fill="#2a78d6" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
