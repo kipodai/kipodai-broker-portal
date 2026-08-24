@@ -88,9 +88,9 @@ export default function ReportView({ report, role, onDeleted, preview = false })
       </header>
 
       <section className="kpi-grid report-signal-grid" aria-label="This week's key signals">
-        <KpiCard label="Weekly sales" value={fmtMoney(metrics.kpi.l1wPosDollars)} chgVsLY={metrics.kpi.l1wPosDollarsChgVsLY} variant="kpi-card-featured" />
+        <KpiCard label="Weekly sales" value={fmtMoney(metrics.kpi.l1wPosDollars)} chgVsLY={metrics.kpi.l1wPosDollarsChgVsLY} />
         <KpiCard label="Velocity" value={`${fmtNumber(metrics.kpi.l4wAvgUSW, 1)} units`} chgVsLY={metrics.kpi.l4wAvgUSWChgVsLY} />
-        <KpiCard label="In stock" value={fmtPct(metrics.kpi.l1wInstockPct)} variant="kpi-card-stock" />
+        <KpiCard label="In stock" value={fmtPct(metrics.kpi.l1wInstockPct)} />
       </section>
 
       <section className="report-story-grid">

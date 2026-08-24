@@ -192,3 +192,8 @@ Earlier the same day, before discovering the dual-hosting decision above, this a
 
 - **The send-email output is now a complete email-safe report, not a digest.** It includes the executive narrative, all six KPI signals, alerts, sales/availability, full state geography, fulfilment trend/detail, and every item in the uploaded item-performance table (including Brand Total). The portal link remains for interactive exploration and archive access.
 - **SVG charts remain as visual enhancement only.** Major email clients can block inline SVG, so sales/availability and fulfilment data are always repeated immediately below their charts as HTML tables. This keeps the report complete even in Outlook-style clients that suppress the visual chart.
+
+## Report visual baseline retained (2026-08-23)
+
+- **Keep the prior email digest as the clean fallback reference, not as a forgotten implementation.** Its visual language was deliberately simple: white background, black headline, muted gray “Weekly performance summary” label, narrative paragraph, neutral KPI table with thin dividers, pale alert strips, one blue “View full report” CTA, and a quiet Shift Retail Group footer. A client may prefer that low-decoration presentation over the newer complete-report email; preserve this description for a future per-client or per-report style choice.
+- **The portal should be editorial without over-emphasizing any one metric.** When showing peer KPI cards, give them equal visual treatment unless the report explicitly states why one is primary. Favor light tinted surfaces over large deep-blue panels, and vertically align paired report components (such as map and adjacent state lists) so they read as one composition.
