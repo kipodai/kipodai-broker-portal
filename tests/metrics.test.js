@@ -302,5 +302,6 @@ describe('geography rankings', () => {
     expect(metrics.geography.fastestGrowing3.some((s) => s.State === 'WY')).toBe(false);
     expect(metrics.geography.fastestGrowing3[0].State).toBe('TX');
     expect(metrics.geography.decliners3.some((s) => s.State === 'NY')).toBe(true);
+    expect(metrics.geography.statePerformance).toEqual(states);
   });
 });

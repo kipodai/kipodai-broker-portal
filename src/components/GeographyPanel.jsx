@@ -1,32 +1,89 @@
-import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from 'recharts';
+import React, { useMemo, useState } from 'react';
+import { feature } from 'topojson-client';
+import { geoAlbersUsa, geoPath } from 'd3-geo';
+import statesTopology from 'us-atlas/states-10m.json';
 import { fmtMoney, fmtChg, deltaClass } from '../lib/format.js';
-import { useIsMobile } from '../lib/useIsMobile.js';
+
+const STATE_ABBREVIATIONS = {
+  '01': 'AL', '02': 'AK', '04': 'AZ', '05': 'AR', '06': 'CA', '08': 'CO', '09': 'CT', '10': 'DE', '11': 'DC',
+  '12': 'FL', '13': 'GA', '15': 'HI', '16': 'ID', '17': 'IL', '18': 'IN', '19': 'IA', '20': 'KS', '21': 'KY',
+  '22': 'LA', '23': 'ME', '24': 'MD', '25': 'MA', '26': 'MI', '27': 'MN', '28': 'MS', '29': 'MO', '30': 'MT',
+  '31': 'NE', '32': 'NV', '33': 'NH', '34': 'NJ', '35': 'NM', '36': 'NY', '37': 'NC', '38': 'ND', '39': 'OH',
+  '40': 'OK', '41': 'OR', '42': 'PA', '44': 'RI', '45': 'SC', '46': 'SD', '47': 'TN', '48': 'TX', '49': 'UT',
+  '50': 'VT', '51': 'VA', '53': 'WA', '54': 'WV', '55': 'WI', '56': 'WY',
+};
+
+const STATE_NAMES = {
+  alabama: 'AL', alaska: 'AK', arizona: 'AZ', arkansas: 'AR', california: 'CA', colorado: 'CO', connecticut: 'CT',
+  delaware: 'DE', 'district of columbia': 'DC', florida: 'FL', georgia: 'GA', hawaii: 'HI', idaho: 'ID', illinois: 'IL',
+  indiana: 'IN', iowa: 'IA', kansas: 'KS', kentucky: 'KY', louisiana: 'LA', maine: 'ME', maryland: 'MD', massachusetts: 'MA',
+  michigan: 'MI', minnesota: 'MN', mississippi: 'MS', missouri: 'MO', montana: 'MT', nebraska: 'NE', nevada: 'NV',
+  'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY', 'north carolina': 'NC', 'north dakota': 'ND',
+  ohio: 'OH', oklahoma: 'OK', oregon: 'OR', pennsylvania: 'PA', 'rhode island': 'RI', 'south carolina': 'SC', 'south dakota': 'SD',
+  tennessee: 'TN', texas: 'TX', utah: 'UT', vermont: 'VT', virginia: 'VA', washington: 'WA', 'west virginia': 'WV', wisconsin: 'WI', wyoming: 'WY',
+};
+
+const US_STATES = feature(statesTopology, statesTopology.objects.states).features;
+const mapProjection = geoAlbersUsa().fitSize([960, 580], { type: 'FeatureCollection', features: US_STATES });
+const mapPath = geoPath(mapProjection);
+
+function stateCode(value) {
+  const normalized = String(value || '').trim();
+  return STATE_NAMES[normalized.toLowerCase()] || normalized.toUpperCase();
+}
+
+function mapFill(value, maxValue) {
+  if (value === null || value === undefined || !maxValue) return '#f0f2f5';
+  const intensity = Math.max(0.2, Math.pow(value / maxValue, 0.55));
+  return `hsl(213 65% ${92 - intensity * 50}%)`;
+}
 
 export default function GeographyPanel({ geography }) {
-  const isMobile = useIsMobile();
-  const { top5States, fastestGrowing3, decliners3 } = geography;
-  const chartData = [...top5States].reverse().map((s) => ({ state: s.State, posDollars: s['POS $'] }));
-  const tickFontSize = isMobile ? 10 : 11;
+  const { fastestGrowing3, decliners3, statePerformance = [] } = geography;
+  const [activeState, setActiveState] = useState(null);
+  const hasStateMapData = statePerformance.length > 0;
+  const stateData = useMemo(() => new Map(statePerformance.map((state) => [stateCode(state.State), state])), [statePerformance]);
+  const maxSales = useMemo(() => Math.max(...statePerformance.map((state) => state['POS $'] || 0), 0), [statePerformance]);
+  const activeData = activeState ? stateData.get(activeState) : null;
 
   return (
     <div className="geography-panel">
       <h3>Geography</h3>
       <div className="geography-grid">
         <div className="geography-chart">
-          <p className="panel-subtitle">Top 5 states by sales</p>
-          <ResponsiveContainer width="100%" height={isMobile ? 200 : 220}>
-            <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: isMobile ? 8 : 20, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#edeef1" horizontal={false} />
-              <XAxis type="number" tickFormatter={(v) => `$${Math.round(v / 1000)}k`} tick={{ fontSize: tickFontSize, fill: '#676d7a' }} stroke="#d3d7de" />
-              <YAxis type="category" dataKey="state" tick={{ fontSize: tickFontSize + 1, fill: '#676d7a' }} width={isMobile ? 32 : 40} stroke="#d3d7de" />
-              <Tooltip
-                formatter={(v) => fmtMoney(v)}
-                contentStyle={{ borderRadius: 8, border: '1px solid #e3e6eb', fontSize: 13, boxShadow: '0 4px 10px rgba(18,21,28,0.08)' }}
-              />
-              <Bar dataKey="posDollars" fill="#2a78d6" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <p className="panel-subtitle">{hasStateMapData ? 'Sales footprint by state' : 'Sales footprint by state — available in newly published reports'}</p>
+          <div className="us-map-wrap">
+            <svg className="us-map" viewBox="0 0 960 580" role="img" aria-labelledby="us-map-title us-map-description">
+              <title id="us-map-title">United States sales map</title>
+              <desc id="us-map-description">States are shaded by point-of-sale sales. Darker blue indicates greater sales.</desc>
+              {US_STATES.map((state) => {
+                const code = STATE_ABBREVIATIONS[String(state.id).padStart(2, '0')];
+                const data = stateData.get(code);
+                return (
+                  <path
+                    key={state.id}
+                    d={mapPath(state) || undefined}
+                    className={`us-map-state${activeState === code ? ' is-active' : ''}`}
+                    fill={mapFill(data?.['POS $'], maxSales)}
+                    onMouseEnter={() => hasStateMapData && setActiveState(code)}
+                    onMouseLeave={() => hasStateMapData && setActiveState(null)}
+                    onFocus={() => hasStateMapData && setActiveState(code)}
+                    onBlur={() => hasStateMapData && setActiveState(null)}
+                    tabIndex={hasStateMapData ? 0 : -1}
+                    aria-label={`${code}: ${data?.['POS $'] !== null && data?.['POS $'] !== undefined ? fmtMoney(data['POS $']) : 'No sales data'}`}
+                  />
+                );
+              })}
+            </svg>
+            <div className="us-map-legend" aria-hidden="true"><span>Lower sales</span><i /><i /><i /><span>Higher sales</span></div>
+            <p className="us-map-detail" aria-live="polite">
+              {!hasStateMapData
+                ? 'This saved report predates the full state-level map. Publish a new report to populate it.'
+                : activeState
+                  ? (activeData ? <><strong>{activeState}</strong> {fmtMoney(activeData['POS $'])} {activeData['POS $ %Chg vs LY'] !== null && <span className={deltaClass(activeData['POS $ %Chg vs LY'])}>({fmtChg(activeData['POS $ %Chg vs LY'])} vs LY)</span>}</> : <><strong>{activeState}</strong> No sales data</>)
+                  : 'Hover or focus a state to explore.'}
+            </p>
+          </div>
         </div>
         <div className="geography-lists">
           <div>

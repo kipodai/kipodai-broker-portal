@@ -216,7 +216,16 @@ function computeGeoMetrics(geoPerformance) {
     .sort((a, b) => a['POS $ %Chg vs LY'] - b['POS $ %Chg vs LY'])
     .slice(0, 3);
 
-  return { top5States, fastestGrowing3, decliners3, grandTotal };
+  // Keep the complete state set in the published metrics so the report can
+  // render a geographic view without needing to expose or re-parse the source
+  // workbook in the browser.
+  const statePerformance = states.map((state) => ({
+    State: state.State,
+    'POS $': state['POS $'],
+    'POS $ %Chg vs LY': state['POS $ %Chg vs LY'],
+  }));
+
+  return { top5States, fastestGrowing3, decliners3, statePerformance, grandTotal };
 }
 
 // The correlation callout: weeks where Instock % dropped below the flag
