@@ -1,9 +1,9 @@
 import React from 'react';
 
-export default function AlertsPanel({ alerts }) {
+export default function AlertsPanel({ alerts, title = 'Alerts' }) {
   return (
     <div className="alerts-panel">
-      <h3>Alerts</h3>
+      <h3>{title}</h3>
       {(!alerts || alerts.length === 0) ? (
         <div className="alert-none">No flags this week.</div>
       ) : (

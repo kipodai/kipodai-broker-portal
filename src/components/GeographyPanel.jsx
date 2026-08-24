@@ -33,18 +33,22 @@ function stateCode(value) {
 }
 
 function mapFill(value, maxValue) {
-  if (value === null || value === undefined || !maxValue) return '#f0f2f5';
+  if (value === null || value === undefined || !maxValue) return '#a3adb3';
   const intensity = Math.max(0.2, Math.pow(value / maxValue, 0.55));
-  return `hsl(213 65% ${92 - intensity * 50}%)`;
+  return `hsl(197 86% ${81 - intensity * 42}%)`;
 }
 
 export default function GeographyPanel({ geography }) {
-  const { fastestGrowing3, decliners3, statePerformance = [] } = geography;
-  const [activeState, setActiveState] = useState(null);
+  const { top5States = [], fastestGrowing3, decliners3, statePerformance = [] } = geography;
+  const [hoveredState, setHoveredState] = useState(null);
+  const [selectedState, setSelectedState] = useState(null);
   const hasStateMapData = statePerformance.length > 0;
   const stateData = useMemo(() => new Map(statePerformance.map((state) => [stateCode(state.State), state])), [statePerformance]);
   const maxSales = useMemo(() => Math.max(...statePerformance.map((state) => state['POS $'] || 0), 0), [statePerformance]);
+  const activeState = hoveredState || selectedState;
   const activeData = activeState ? stateData.get(activeState) : null;
+  const featuredState = activeData || (!activeState ? top5States[0] : null);
+  const featuredCode = featuredState ? stateCode(featuredState.State) : null;
 
   return (
     <div className="geography-panel">
@@ -53,29 +57,51 @@ export default function GeographyPanel({ geography }) {
         <div className="geography-chart">
           <p className="panel-subtitle">{hasStateMapData ? 'Sales footprint by state' : 'Sales footprint by state — available in newly published reports'}</p>
           <div className="us-map-wrap">
-            <svg className="us-map" viewBox="0 0 960 580" role="img" aria-labelledby="us-map-title us-map-description">
-              <title id="us-map-title">United States sales map</title>
-              <desc id="us-map-description">States are shaded by point-of-sale sales. Darker blue indicates greater sales.</desc>
-              {US_STATES.map((state) => {
-                const code = STATE_ABBREVIATIONS[String(state.id).padStart(2, '0')];
-                const data = stateData.get(code);
-                return (
-                  <path
-                    key={state.id}
-                    d={mapPath(state) || undefined}
-                    className={`us-map-state${activeState === code ? ' is-active' : ''}`}
-                    fill={mapFill(data?.['POS $'], maxSales)}
-                    onMouseEnter={() => hasStateMapData && setActiveState(code)}
-                    onMouseLeave={() => hasStateMapData && setActiveState(null)}
-                    onFocus={() => hasStateMapData && setActiveState(code)}
-                    onBlur={() => hasStateMapData && setActiveState(null)}
-                    tabIndex={hasStateMapData ? 0 : -1}
-                    aria-label={`${code}: ${data?.['POS $'] !== null && data?.['POS $'] !== undefined ? fmtMoney(data['POS $']) : 'No sales data'}`}
-                  />
-                );
-              })}
-            </svg>
-            <div className="us-map-legend" aria-hidden="true"><span>Lower sales</span><i /><i /><i /><span>Higher sales</span></div>
+            <div className="geo-map-stage">
+              <div className="geo-map-stage-header">
+                <span>Retail footprint</span>
+                <span>{hasStateMapData ? `${statePerformance.length} markets reported` : 'Historical report'}</span>
+              </div>
+              {featuredState && (
+                <div className="geo-map-callout">
+                  <span>{selectedState === featuredCode ? 'Selected market' : activeState ? 'Market spotlight' : 'Leading market'}</span>
+                  <strong>{featuredCode} · {fmtMoney(featuredState['POS $'])}</strong>
+                  {featuredState['POS $ %Chg vs LY'] !== null && featuredState['POS $ %Chg vs LY'] !== undefined && <small className={deltaClass(featuredState['POS $ %Chg vs LY'])}>{fmtChg(featuredState['POS $ %Chg vs LY'])} vs LY</small>}
+                </div>
+              )}
+              <svg className="us-map" viewBox="0 0 960 580" role="group" aria-labelledby="us-map-title us-map-description">
+                <title id="us-map-title">United States sales map</title>
+                <desc id="us-map-description">States are shaded by point-of-sale sales. Deeper blue indicates greater sales. Select a state to reveal its performance.</desc>
+                {US_STATES.map((state) => {
+                  const code = STATE_ABBREVIATIONS[String(state.id).padStart(2, '0')];
+                  const data = stateData.get(code);
+                  return (
+                    <path
+                      key={state.id}
+                      d={mapPath(state) || undefined}
+                      className={`us-map-state${activeState === code ? ' is-active' : ''}`}
+                      fill={mapFill(data?.['POS $'], maxSales)}
+                      onMouseEnter={() => hasStateMapData && setHoveredState(code)}
+                      onMouseLeave={() => hasStateMapData && setHoveredState(null)}
+                      onFocus={() => hasStateMapData && setHoveredState(code)}
+                      onBlur={() => hasStateMapData && setHoveredState(null)}
+                      onClick={() => hasStateMapData && setSelectedState((current) => current === code ? null : code)}
+                      onKeyDown={(event) => {
+                        if (hasStateMapData && (event.key === 'Enter' || event.key === ' ')) {
+                          event.preventDefault();
+                          setSelectedState((current) => current === code ? null : code);
+                        }
+                      }}
+                      tabIndex={hasStateMapData ? 0 : -1}
+                      role={hasStateMapData ? 'button' : undefined}
+                      aria-pressed={hasStateMapData ? selectedState === code : undefined}
+                      aria-label={`${code}: ${data?.['POS $'] !== null && data?.['POS $'] !== undefined ? fmtMoney(data['POS $']) : 'No sales data'}`}
+                    />
+                  );
+                })}
+              </svg>
+            </div>
+            <div className="us-map-legend" aria-hidden="true"><span className="us-map-no-data-swatch" /><span>No data</span><span>Lower sales</span><i /><i /><i /><span>Higher sales</span></div>
             <p className="us-map-detail" aria-live="polite">
               {!hasStateMapData
                 ? 'This saved report predates the full state-level map. Publish a new report to populate it.'
@@ -86,7 +112,7 @@ export default function GeographyPanel({ geography }) {
           </div>
         </div>
         <div className="geography-lists">
-          <div>
+          <div className="geo-trend-card geo-growth-card">
             <p className="panel-subtitle">Fastest growing</p>
             <ul className="geo-list">
               {fastestGrowing3.length === 0 && <li className="geo-list-empty">Not enough data.</li>}
@@ -98,7 +124,7 @@ export default function GeographyPanel({ geography }) {
               ))}
             </ul>
           </div>
-          <div>
+          <div className="geo-trend-card geo-decline-card">
             <p className="panel-subtitle">Declining</p>
             <ul className="geo-list">
               {decliners3.length === 0 && <li className="geo-list-empty">Not enough data.</li>}

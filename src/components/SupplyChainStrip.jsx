@@ -3,7 +3,7 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianG
 import { fmtWeek } from '../lib/format.js';
 import { useIsMobile } from '../lib/useIsMobile.js';
 
-export default function SupplyChainStrip({ otif }) {
+export default function SupplyChainStrip({ otif, title = 'Supply Chain — On Time & In Full' }) {
   const isMobile = useIsMobile();
   const data = (otif?.series13w || []).map((pt) => ({
     week: pt.week,
@@ -16,7 +16,7 @@ export default function SupplyChainStrip({ otif }) {
 
   return (
     <div className="chart-card">
-      <h3>Supply Chain — On Time &amp; In Full</h3>
+      <h3>{title}</h3>
       {data.length === 0 ? (
         <p className="panel-subtitle">No supply chain data available.</p>
       ) : (

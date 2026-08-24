@@ -5,7 +5,7 @@ import {
 import { fmtWeek, fmtMoney } from '../lib/format.js';
 import { useIsMobile } from '../lib/useIsMobile.js';
 
-export default function MainChart({ series }) {
+export default function MainChart({ series, title = 'Sales vs. Last Year & In-Stock %' }) {
   const isMobile = useIsMobile();
   const data = (series || []).map((pt) => ({
     week: pt.week,
@@ -23,7 +23,7 @@ export default function MainChart({ series }) {
 
   return (
     <div className="chart-card">
-      <h3>Sales vs. Last Year &amp; In-Stock %</h3>
+      <h3>{title}</h3>
       <ResponsiveContainer width="100%" height={isMobile ? 260 : 320}>
         <ComposedChart data={data} margin={{ top: 10, right: isMobile ? 4 : 24, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#edeef1" />

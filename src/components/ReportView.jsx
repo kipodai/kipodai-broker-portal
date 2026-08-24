@@ -67,10 +67,14 @@ export default function ReportView({ report, role, onDeleted, preview = false })
 
   return (
     <div className="report-page">
-      <header className="report-header">
-        <div>
+      <header className="report-header report-hero">
+        <div className="report-hero-copy">
+          <p className="report-eyebrow">Weekly retail pulse</p>
           <h1>{CLIENT_BRAND_NAME}</h1>
           <p className="report-meta">{fmtWeek(metrics.currentWeek)} · Generated {new Date(report.generatedAt).toLocaleDateString()}</p>
+          <section className="exec-summary">
+            <p>{narrative.text}</p>
+          </section>
         </div>
         {role === 'admin' && !preview && (
           <div className="report-admin-actions">
@@ -83,39 +87,39 @@ export default function ReportView({ report, role, onDeleted, preview = false })
         {preview && <span className="preview-badge">Preview — not yet published</span>}
       </header>
 
-      <section className="exec-summary">
-        <p className="exec-summary-label">Executive Summary</p>
-        <p>{narrative.text}</p>
+      <section className="kpi-grid report-signal-grid" aria-label="This week's key signals">
+        <KpiCard label="Weekly sales" value={fmtMoney(metrics.kpi.l1wPosDollars)} chgVsLY={metrics.kpi.l1wPosDollarsChgVsLY} variant="kpi-card-featured" />
+        <KpiCard label="Velocity" value={`${fmtNumber(metrics.kpi.l4wAvgUSW, 1)} units`} chgVsLY={metrics.kpi.l4wAvgUSWChgVsLY} />
+        <KpiCard label="In stock" value={fmtPct(metrics.kpi.l1wInstockPct)} variant="kpi-card-stock" />
       </section>
 
-      <section className="kpi-grid">
-        <KpiCard label="L1W Sales" value={fmtMoney(metrics.kpi.l1wPosDollars)} chgVsLY={metrics.kpi.l1wPosDollarsChgVsLY} />
-        <KpiCard label="L4W Sales" value={fmtMoney(metrics.kpi.l4wPosDollars)} chgVsLY={metrics.kpi.l4wPosDollarsChgVsLY} />
-        <KpiCard label="Units / Store / Week" value={fmtNumber(metrics.kpi.l4wAvgUSW, 1)} chgVsLY={metrics.kpi.l4wAvgUSWChgVsLY} />
-        <KpiCard label="In-Stock %" value={fmtPct(metrics.kpi.l1wInstockPct)} />
-        <KpiCard label="In Full % (OTIF)" value={fmtPct(metrics.kpi.l1wInFullPct)} />
-        <KpiCard label="Selling Stores" value={fmtNumber(metrics.kpi.l1wPosStoreCount)} />
-      </section>
-
-      <section>
-        <MainChart series={metrics.mainChartSeries} />
-      </section>
-
-      <section>
-        <AlertsPanel alerts={metrics.alerts} />
+      <section className="report-story-grid">
+        <MainChart series={metrics.mainChartSeries} title="The long view" />
+        <AlertsPanel alerts={metrics.alerts} title="What needs attention" />
       </section>
 
       <section>
         <GeographyPanel geography={metrics.geography} />
       </section>
 
-      <section>
-        <SupplyChainStrip otif={metrics.otif} />
-      </section>
-
-      <section>
-        <ItemPerformancePanel itemPerformance={metrics.itemPerformance} />
-      </section>
+      <details className="report-details">
+        <summary>
+          <span>
+            <strong>Open the operations desk</strong>
+            <small>Fulfilment, distribution and item-level detail</small>
+          </span>
+          <span className="report-details-toggle" aria-hidden="true">View detail</span>
+        </summary>
+        <div className="report-details-body">
+          <section className="kpi-grid operational-kpi-grid" aria-label="Operational metrics">
+            <KpiCard label="Last 4 weeks sales" value={fmtMoney(metrics.kpi.l4wPosDollars)} chgVsLY={metrics.kpi.l4wPosDollarsChgVsLY} />
+            <KpiCard label="In full" value={fmtPct(metrics.kpi.l1wInFullPct)} />
+            <KpiCard label="Selling stores" value={fmtNumber(metrics.kpi.l1wPosStoreCount)} />
+          </section>
+          <SupplyChainStrip otif={metrics.otif} title="Fulfilment rhythm" />
+          <ItemPerformancePanel itemPerformance={metrics.itemPerformance} />
+        </div>
+      </details>
 
       {role === 'admin' && !preview && sendLog.length > 0 && (
         <section className="send-history">
