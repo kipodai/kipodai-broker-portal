@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A fictional example of a KipodAI retail weekly report." />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700,800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/site.css" />
+    <link rel="stylesheet" href="/weekly-report.css" />
+    <title>Sample weekly report — KipodAI</title>
+  </head>
+  <body class="sample-report-page">
+    <nav class="nav report-nav"><a class="brand" href="/"><img src="/kipodai.png" alt="KipodAI" /><strong>kipodai</strong></a><div><a href="/retail-weekly-reports.html">Retail weekly reports</a><a class="portal" href="mailto:hello@kipodai.com?subject=Request%20a%20sample%20report">Request a sample report →</a></div></nav>
+    <main class="report-shell">
+      <div class="demo-ribbon">Fictional demo — all brands, retailers, and figures below are illustrative.</div>
+      <header class="report-hero">
+        <div><p>Northstar Snacks · National Grocery</p><h1>Weekly retail performance report</h1><span>Week 32 · Prepared Monday, August 10</span></div>
+        <div class="report-logo">NS<span>✦</span></div>
+      </header>
+      <section class="report-summary"><p class="eyebrow">Executive readout</p><h2>Demand is healthy, but Midwest availability is starting to limit the upside.</h2><p>Sales grew 8.4% versus last year, led by the Northeast and Southeast. In-stock slipped below target in Midwest stores while sell-through stayed strong, pointing to a supply constraint—not a demand slowdown. Prioritize replenishment before the next promotional window.</p></section>
+      <section class="kpi-grid" aria-label="Weekly performance indicators">
+        <article><span>POS sales</span><b>$184.6K</b><em class="positive">↑ 8.4% vs LY</em></article>
+        <article><span>Last 4 weeks</span><b>$716.2K</b><em class="positive">↑ 6.8% vs LY</em></article>
+        <article><span>Units / store / week</span><b>14.8</b><em class="positive">↑ 0.9 vs LY</em></article>
+        <article><span>In-stock</span><b>96.9%</b><em class="watch">↓ 1.7 pts this week</em></article>
+        <article><span>In full</span><b>97.6%</b><em class="positive">On target</em></article>
+        <article><span>Selling stores</span><b>1,248</b><em class="positive">↑ 43 vs LY</em></article>
+      </section>
+      <section class="report-grid main-grid">
+        <article class="panel trend-panel"><div class="panel-heading"><div><p>Sales & availability</p><h3>Sales continue to climb while availability dips.</h3></div><span>13 weeks</span></div><div class="legend"><i class="sales-key"></i> POS sales <i class="stock-key"></i> In-stock</div><svg viewBox="0 0 760 250" role="img" aria-label="Thirteen week sales and in-stock trend"><path class="chart-grid" d="M0 32H760M0 104H760M0 176H760M0 248H760"/><path class="chart-area" d="M0 190L63 182L126 169L189 175L252 142L315 133L378 116L441 121L504 91L567 101L630 57L693 69L760 31V250H0Z"/><path class="chart-sales" d="M0 190L63 182L126 169L189 175L252 142L315 133L378 116L441 121L504 91L567 101L630 57L693 69L760 31"/><path class="chart-stock" d="M0 52L63 55L126 48L189 50L252 42L315 45L378 39L441 42L504 48L567 56L630 83L693 111L760 139"/><circle cx="760" cy="139" r="5" class="chart-dot"/><text x="622" y="166" class="chart-note">Availability below target</text></svg><div class="axis"><span>Wk 20</span><span>Wk 23</span><span>Wk 26</span><span>Wk 29</span><span>Wk 32</span></div></article>
+        <aside class="panel alerts"><div class="panel-heading"><div><p>Needs attention</p><h3>Act before the next reset.</h3></div></div><div class="alert flag"><b>Midwest in-stock is 94.2%</b><span>Below the 98.5% target while sales are up 11.6%.</span></div><div class="alert watch"><b>Store coverage is uneven</b><span>42 active stores did not sell this week; review on-shelf availability.</span></div><div class="next-step"><small>Recommended next move</small><b>Confirm Midwest DC replenishment timing and door-level allocation.</b></div></aside>
+      </section>
+      <section class="report-grid lower-grid">
+        <article class="panel geography"><div class="panel-heading"><div><p>Where momentum is building</p><h3>Top markets by sales</h3></div><span>Last 4 weeks</span></div><div class="bar-row"><b>Northeast</b><div><i style="width:100%"></i></div><span>$171K <em>+12.2%</em></span></div><div class="bar-row"><b>Southeast</b><div><i style="width:84%"></i></div><span>$144K <em>+9.7%</em></span></div><div class="bar-row"><b>Midwest</b><div><i style="width:75%"></i></div><span>$128K <em class="risk">+11.6%</em></span></div><div class="bar-row"><b>Southwest</b><div><i style="width:62%"></i></div><span>$106K <em>+5.1%</em></span></div><div class="bar-row"><b>West</b><div><i style="width:54%"></i></div><span>$92K <em>+3.8%</em></span></div></article>
+        <article class="panel fulfillment"><div class="panel-heading"><div><p>Supply chain</p><h3>Service levels remain solid.</h3></div><span>13 weeks</span></div><div class="service-metric"><span>On time</span><b>98.8%</b><i>↑ 0.6 pts vs last week</i></div><div class="service-metric"><span>In full</span><b>97.6%</b><i>On target</i></div><svg viewBox="0 0 420 85" role="img" aria-label="On-time and in-full service trend"><path class="service-grid" d="M0 22H420M0 55H420"/><path class="service-on-time" d="M0 38L42 31 84 34 126 26 168 29 210 22 252 28 294 19 336 23 378 15 420 20"/><path class="service-in-full" d="M0 51L42 46 84 49 126 42 168 44 210 39 252 43 294 35 336 39 378 32 420 34"/></svg></article>
+      </section>
+      <footer class="report-footer">Prepared by Shift Retail Group · Powered by KipodAI <a href="/retail-weekly-reports.html">See how this works →</a></footer>
+    </main>
+  </body>
+</html>
