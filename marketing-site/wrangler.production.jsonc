@@ -1,9 +1,19 @@
 {
   "$schema": "../node_modules/wrangler/config-schema.json",
   "name": "kipodai-marketing",
+  "main": "worker.js",
   "compatibility_date": "2026-08-22",
+  // The Worker runs first for every request so /demos/* cannot be reached via
+  // an odd path encoding; anything that is not gated falls straight through to
+  // the static assets. Secrets (set by hand, never in this file):
+  //   DEMO_PASSWORD, DEMO_GATE_SECRET  (same DEMO_GATE_SECRET on the demo Worker)
   "assets": {
     "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true,
     "not_found_handling": "single-page-application"
+  },
+  "vars": {
+    "COOKIE_DOMAIN": ".kipodai.com"
   }
 }

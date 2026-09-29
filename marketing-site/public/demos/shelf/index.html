@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Shelf on a Page: a KipodAI demo showing how each item earns its space on the shelf, using synthetic data." />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700,800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/site.css" />
+    <link rel="stylesheet" href="/demos/shelf/shelf.css" />
+    <title>Shelf on a Page — KipodAI demo</title>
+  </head>
+  <body class="shelf-page">
+    <nav class="nav"><a class="brand" href="/"><img src="/kipodai.png" alt="KipodAI" /><strong>kipodai</strong></a><div><a href="/#solutions">What we build</a><a href="/product-tour.html">Explore capabilities</a><a class="active-link" href="/demos/" aria-current="page">All demos</a></div></nav>
+    <main class="shelf-main">
+      <p class="back"><a href="/demos/">&larr; All demos</a></p>
+      <p class="chip">Demo with synthetic data</p>
+      <h1>Shelf on a Page</h1>
+      <p class="meta" id="meta-line"></p>
+      <noscript><p class="noscript">This demo needs JavaScript to calculate and draw the page. Please enable it and reload.</p></noscript>
+
+      <div class="controls">
+        <div class="ctl">
+          <span class="ctl-label" id="win-label">Time frame</span>
+          <div class="seg" role="group" aria-labelledby="win-label">
+            <button type="button" data-window="l1" aria-pressed="false">Last week</button>
+            <button type="button" data-window="l13" aria-pressed="true">Last 13 weeks</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label class="ctl-label" for="tier">Data connected</label>
+          <select id="tier"><option value="4" selected>+ planogram</option></select>
+        </div>
+        <p class="tier-hint" id="tier-hint"></p>
+      </div>
+
+      <div class="headline" id="headline" aria-live="polite"></div>
+      <div class="kpis" id="kpis"></div>
+
+      <section aria-labelledby="h-assort">
+        <h2 id="h-assort">Assortment</h2>
+        <p class="sub">Every item, sorted by dollars unless you choose another column. Velocity is per store selling, per week. Hero items are the fewest items that together make at least half of dollars, recalculated from the loaded data.</p>
+        <div class="scroll" tabindex="0" role="region" aria-label="Assortment table, scrolls sideways on small screens">
+          <table id="tbl"><thead></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <section aria-labelledby="h-shelf">
+        <h2 id="h-shelf">Shelf space vs. sales</h2>
+        <p class="sub">Each row is one category's set. The shelf shows Clover Provisions facings to scale against every other brand's; the bar underneath shows its share of category dollars, with a tick for its share of units. When the sales figure runs ahead of the shelf figure, the item is earning more than its space.</p>
+        <div id="shelfwrap"></div>
+      </section>
+
+      <section aria-labelledby="h-act">
+        <h2 id="h-act">What to act on</h2>
+        <p class="sub">Each takeaway is generated from the numbers on this page by fixed rules, so it can be checked. Open "How this was computed" to see the math.</p>
+        <ul class="takes" id="takes"></ul>
+      </section>
+
+      <section aria-labelledby="h-src">
+        <h2 id="h-src">Where each number comes from</h2>
+        <p class="sub">Change "Data connected" above to see what the page can show at each level.</p>
+        <div class="sources" id="sources"></div>
+      </section>
+
+      <p class="foot">All data on this page is fabricated for demonstration. Clover Provisions and Maple Row Market are fictional.</p>
+    </main>
+    <script type="module" src="/demos/shelf/main.js"></script>
+  </body>
+</html>
