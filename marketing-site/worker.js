@@ -1,4 +1,4 @@
-import { handleLogin, hasValidGateCookie, isGatedPath, loginRedirectUrl } from './gate.js';
+import { handleLogin, handleLogout, hasValidGateCookie, isGatedPath, loginRedirectUrl } from './gate.js';
 
 const unauthorized = () => new Response('This KipodAI preview is private.', {
   status: 401,
@@ -30,6 +30,7 @@ export default {
     }
 
     if (pathname === '/demo-login') return handleLogin(request, env);
+    if (pathname === '/demo-logout') return handleLogout(request, env);
 
     // Everything under /demos is private. The public marketing pages fall
     // straight through to static assets unchanged.

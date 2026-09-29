@@ -306,6 +306,72 @@ describe('worker: login', () => {
   });
 });
 
+describe('session length', () => {
+  it('is four hours, both in the cookie lifetime and in the signed expiry', async () => {
+    expect(COOKIE_TTL_SECONDS).toBe(4 * 60 * 60);
+    const res = await worker.fetch(login({ password: 'kipodtour' }), makeEnv());
+    expect(res.headers.get('Set-Cookie')).toContain(`Max-Age=${4 * 60 * 60}`);
+    const token = res.headers.get('Set-Cookie').split(';')[0].split('=')[1];
+    const exp = Number(token.split('.')[1]);
+    const nowS = Math.floor(Date.now() / 1000);
+    expect(exp - nowS).toBeGreaterThan(4 * 60 * 60 - 5);
+    expect(exp - nowS).toBeLessThanOrEqual(4 * 60 * 60);
+    // and the token really does stop working after that
+    expect(await verifyToken(SECRET, token, exp + 1)).toBe(false);
+    expect(await verifyToken(SECRET, token, nowS)).toBe(true);
+  });
+});
+
+describe('worker: logout', () => {
+  const logout = (headers = {}, method = 'POST') =>
+    new Request('https://kipodai.com/demo-logout', { method, headers: { Origin: 'https://kipodai.com', ...headers } });
+
+  it('clears the shared cookie with the same scope it was issued with', async () => {
+    const res = await worker.fetch(logout(), makeEnv());
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+    const set = res.headers.get('Set-Cookie');
+    expect(set).toMatch(new RegExp(`^${COOKIE_NAME}=;`));
+    for (const attr of ['Max-Age=0', 'Path=/', 'HttpOnly', 'Secure', 'SameSite=Lax', 'Domain=.kipodai.com']) {
+      expect(set).toContain(attr);
+    }
+    expect(res.headers.get('Cache-Control')).toBe('no-store');
+  });
+
+  it('after signing in then out, the next request to /demos is sent back to sign in', async () => {
+    const env = makeEnv();
+    const signedIn = cookieFrom(await worker.fetch(login({ password: 'kipodtour' }), env));
+    expect((await worker.fetch(get('/demos/', { Cookie: signedIn }), env)).status).toBe(200);
+    // the browser now holds the cleared (empty) cookie
+    const cleared = cookieFrom(await worker.fetch(logout({ Cookie: signedIn }), env));
+    expect(cleared).toBe(`${COOKIE_NAME}=`);
+    expect((await worker.fetch(get('/demos/', { Cookie: cleared }), env)).status).toBe(302);
+  });
+
+  it('works for a visitor with no cookie and even when the gate secrets are not configured', async () => {
+    const res = await worker.fetch(logout(), makeEnv({ DEMO_GATE_SECRET: undefined, DEMO_PASSWORD: undefined }));
+    expect(res.status).toBe(200);
+  });
+
+  it.each([
+    ['GET', () => logout({}, 'GET'), 405],
+    ['PUT', () => new Request('https://kipodai.com/demo-logout', { method: 'PUT' }), 405],
+    ['a cross-site POST (cannot sign someone else out)', () => logout({ Origin: 'https://evil.com' }), 403],
+  ])('%s is refused', async (_n, make, status) => {
+    const res = await worker.fetch(make(), makeEnv());
+    expect(res.status).toBe(status);
+    expect(res.headers.get('Set-Cookie')).toBeNull();
+  });
+
+  it('is host-only and not Secure on plain-http local dev, like login', async () => {
+    const req = new Request('http://localhost:8787/demo-logout', { method: 'POST', headers: { Origin: 'http://localhost:8787' } });
+    const set = (await worker.fetch(req, makeEnv({ COOKIE_DOMAIN: '.kipodai.com' }))).headers.get('Set-Cookie');
+    expect(set).not.toMatch(/Secure/);
+    expect(set).not.toMatch(/Domain=/);
+    expect(set).toContain('Max-Age=0');
+  });
+});
+
 describe('worker: preview deployment keeps its Basic auth', () => {
   const basic = (pw) => `Basic ${btoa(`preview:${pw}`)}`;
   it('challenges pages without credentials, lets them through with, and exempts static assets', async () => {

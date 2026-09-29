@@ -6,7 +6,7 @@
 
 export const COOKIE_NAME = 'kipod_demo';
 export const TOKEN_VERSION = 'v1';
-export const COOKIE_TTL_SECONDS = 12 * 60 * 60;
+export const COOKIE_TTL_SECONDS = 4 * 60 * 60;
 export const LOGIN_PATH = '/product-tour.html';
 export const DEFAULT_NEXT = '/demos/';
 // Absolute origins a login may send the visitor back to. Anything else falls
@@ -117,12 +117,30 @@ export async function hasValidGateCookie(request, env, nowMs = Date.now()) {
   return verifyToken(env.DEMO_GATE_SECRET, token, Math.floor(nowMs / 1000));
 }
 
+const json = (status, body, headers = {}) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...headers },
+  });
+
+// Clears the cookie for every *.kipodai.com host (the demo Worker reads the
+// same one). POST only, same-origin only, so another site cannot sign a visitor
+// out. Needs no secrets: it works even if the gate is misconfigured.
+export async function handleLogout(request, env) {
+  if (request.method !== 'POST') return json(405, { ok: false }, { Allow: 'POST' });
+  const url = new URL(request.url);
+  const origin = request.headers.get('Origin');
+  if (origin && origin !== url.origin) return json(403, { ok: false });
+  return json(200, { ok: true }, {
+    'Set-Cookie': buildSetCookie('', {
+      maxAge: 0,
+      domain: cookieDomainFor(url.hostname, env.COOKIE_DOMAIN),
+      secure: url.protocol === 'https:',
+    }),
+  });
+}
+
 export async function handleLogin(request, env, nowMs = Date.now()) {
-  const json = (status, body, headers = {}) =>
-    new Response(JSON.stringify(body), {
-      status,
-      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...headers },
-    });
   if (request.method !== 'POST') return json(405, { ok: false }, { Allow: 'POST' });
   const url = new URL(request.url);
   const origin = request.headers.get('Origin');
