@@ -40,6 +40,18 @@ describe('signed token', () => {
   });
 });
 
+describe('cross-Worker compatibility (the demo Worker pins this same token)', () => {
+  // tests/gate.mjs in kipodai-demo-dashboard asserts this exact string. If the
+  // token format ever changes here, that project's test fails until its
+  // worker/gate.js copy is updated, so the two hosts cannot drift silently.
+  const VECTOR = 'v1.4102444800.ce39fd60ea8286be271224740303a5304942fe5e876da2d1bab6a2e9fc545f8d';
+  it('produces the pinned token and verifies it', async () => {
+    expect(await signToken('vector-secret', 4102444800)).toBe(VECTOR);
+    expect(await verifyToken('vector-secret', VECTOR, nowSec)).toBe(true);
+    expect(await verifyToken('other-secret', VECTOR, nowSec)).toBe(false);
+  });
+});
+
 describe('password', () => {
   it.each([
     ['exact', 'kipodtour', true],
