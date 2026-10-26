@@ -123,6 +123,7 @@ scrub) rather than just deleting the file in a new commit.
 
 ### Feature backlog (requested, not yet built)
 
+- **Separate the marketing site into its own repository/workspace.** `marketing-site/` is currently tracked inside this broker-portal repository despite being deployed as a separate Cloudflare Worker. Move its history and deployment configuration to a dedicated repository before the next substantial marketing-site change; preserve the portal repository's unrelated worktree changes and do not alter DNS or deploy settings as part of the move.
 - ~~**Item-level slicer.**~~ Done (2026-08-21) — the real export (`Mamma Chia Sales_Performance_*.xlsx`)
   turned out to carry **LWk, L4Wk, L13Wk, L26Wk, L52Wk, YTD** period rollups per item (30 items:
   Prime Item Nbr, Prime Item Desc, UPC), not the L25 originally guessed. Built as:
