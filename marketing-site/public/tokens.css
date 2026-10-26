@@ -1,0 +1,48 @@
+@import url('/layout-refresh.css');
+
+/* Spike Retail color tokens (Graphite Grid). Every color on the site comes from here.
+   Load before site.css. Derived tokens are mixed from the base palette, not new colors. */
+:root {
+  /* Base palette */
+  --color-bg: #F4F6F8;
+  --color-surface: #FFFFFF;
+  --color-text: #18212B;
+  --color-muted: #596673;
+  --color-border: #D7DEE6;
+  --color-primary: #3C4DA6;
+  --color-primary-hover: #303F8F;
+  --color-accent: #13A7A0;
+  --color-success: #167A5B;
+  --color-warning: #9A6700;
+  --color-danger: #B42318;
+
+  /* Chart series, in order */
+  --chart-1: #3C4DA6;
+  --chart-2: #13A7A0;
+  --chart-3: #E3A53B;
+  --chart-4: #8763C7;
+  --chart-5: #D55D5D;
+  --chart-6: #3B82B6;
+
+  /* Derived neutrals */
+  --color-on-primary: #FFFFFF;
+  --color-surface-muted: color-mix(in srgb, var(--color-bg) 60%, var(--color-surface));
+  --color-border-strong: color-mix(in srgb, var(--color-border) 70%, var(--color-muted));
+  --color-subtle: color-mix(in srgb, var(--color-muted) 70%, var(--color-border));
+  --color-text-soft: color-mix(in srgb, var(--color-text) 75%, var(--color-muted));
+  --color-shadow: var(--color-text);
+
+  /* Dark panels (hero dashboard, video player) */
+  --color-ink: var(--color-text);
+  --color-ink-2: color-mix(in srgb, var(--color-text) 82%, var(--color-primary));
+
+  /* Primary tints: soft = backgrounds, tint = borders/fills, bright = on dark panels */
+  --color-primary-soft: color-mix(in srgb, var(--color-primary) 7%, var(--color-surface));
+  --color-primary-tint: color-mix(in srgb, var(--color-primary) 22%, var(--color-surface));
+  --color-primary-bright: color-mix(in srgb, var(--color-primary) 50%, var(--color-surface));
+
+  /* Status tints for use on dark panels */
+  --color-accent-bright: color-mix(in srgb, var(--color-accent) 60%, var(--color-surface));
+  --color-success-bright: color-mix(in srgb, var(--color-success) 45%, var(--color-surface));
+  --color-highlight: color-mix(in srgb, var(--chart-3) 70%, var(--color-surface));
+}

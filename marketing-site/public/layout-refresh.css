@@ -1,0 +1,61 @@
+/* Shared layout refinements for the Spike Retail marketing site. */
+
+/* Give the data product proof more authority than decorative motion. */
+body .hero { grid-template-columns: minmax(0, 0.94fr) minmax(480px, 1.06fr); gap: clamp(36px, 5vw, 72px); padding-block: clamp(72px, 9vw, 120px); }
+body .dashboard { transform: none; border: 1px solid color-mix(in srgb, var(--color-primary) 40%, var(--color-text)); border-radius: 18px; padding: 24px; box-shadow: 0 32px 72px color-mix(in srgb, var(--color-text) 24%, transparent); }
+body .metrics { gap: 1px; margin-block: 24px 16px; background: color-mix(in srgb, var(--color-text) 82%, var(--color-surface)); border: 1px solid color-mix(in srgb, var(--color-text) 82%, var(--color-surface)); border-radius: 10px; overflow: hidden; }
+body .metrics div, body .chart { border-radius: 0; }
+body .metrics div { min-height: 86px; }
+body .chart { border-radius: 10px; border: 1px solid color-mix(in srgb, var(--color-border) 18%, transparent); }
+body .dash-top { color: var(--color-border); letter-spacing: .01em; }
+
+/* Reuse report-card geometry across narrative sections. */
+body .lens-grid, body .cards article, body .report-preview, body .walkthrough-screen, body .tour-stage, body .example-report, body .example-club { border-radius: 16px; }
+body .lens-grid { overflow: hidden; box-shadow: 0 16px 40px color-mix(in srgb, var(--color-text) 7%, transparent); }
+body .cards { gap: 20px; }
+body .cards article { min-height: 326px; border-radius: 16px; }
+body .cards article:nth-child(2) { transform: translateY(12px); }
+body .cards article:hover, body .cards article:nth-child(2):hover { transform: translateY(-6px); border-color: var(--color-primary); }
+
+/* Make section rhythm and hierarchy calmer and more scannable. */
+body .lens { padding-bottom: clamp(72px, 9vw, 128px); }
+body .solutions { padding-block: clamp(88px, 10vw, 144px); }
+body .how { padding-block: clamp(82px, 9vw, 132px); }
+body .full { padding-block: clamp(96px, 10vw, 144px); }
+body .full h2 { font-size: clamp(46px, 5vw, 72px); }
+body .contact { padding-block: clamp(76px, 8vw, 112px); }
+body .kicker, body .solutions header > p, body .full p, body .how p, body .contact p, body .tour-eyebrow, body .weekly-kicker { letter-spacing: .08em; text-transform: uppercase; }
+
+/* Use the palette consistently for all interactive states. */
+body a:focus-visible, body button:focus-visible, body input:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-accent) 70%, var(--color-surface)); outline-offset: 4px; }
+body .portal, body .button { transition: background-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+body .portal:hover, body .button:hover { background: var(--color-primary-hover); box-shadow: 0 8px 20px color-mix(in srgb, var(--color-primary) 28%, transparent); transform: translateY(-1px); }
+body .tabs button { transition: background-color .18s ease, color .18s ease, padding-left .18s ease; }
+body .tabs button:hover:not(.active) { background: var(--color-primary-soft); color: var(--color-primary-hover); padding-left: 28px; }
+
+/* Tables and mockups keep content legible when space is scarce. */
+body .report-preview { transform: none; border-color: var(--color-border-strong); box-shadow: 0 24px 56px color-mix(in srgb, var(--color-text) 12%, transparent); }
+body .report-preview:hover { border-color: var(--color-primary); }
+
+/* The reusable wordmark keeps the pending trademark swap reversible. */
+body .brand img { display: none; }
+body .brand strong { color: var(--color-text); font-size: 20px; letter-spacing: -.055em; text-transform: capitalize; }
+body .full .brand strong, body .contact .brand strong { color: var(--color-surface); }
+body .floating-contact img { content: url('/hedgehog-envelope.png'); }
+
+@media (max-width: 850px) {
+  body .hero { grid-template-columns: 1fr; padding-block: 58px 74px; }
+  body .dashboard { max-width: 680px; width: 100%; justify-self: center; }
+  body .cards article:nth-child(2) { transform: none; }
+  body .weekly-hero, body .tour-hero { gap: 42px; }
+}
+
+@media (max-width: 540px) {
+  body .hero { padding-inline: 20px; }
+  body .dashboard { padding: 16px; border-radius: 14px; }
+  body .metrics { grid-template-columns: 1fr; }
+  body .metrics div { min-height: 0; padding-block: 11px; }
+  body .hero h1, body .tour-hero h1, body .weekly-hero h1 { font-size: clamp(44px, 13vw, 58px); }
+  body .lens, body .solutions { padding-inline: 20px; }
+  body .lens h2, body .solutions h2, body .full h2, body .how h2, body .contact h2 { font-size: clamp(36px, 11vw, 48px); }
+}

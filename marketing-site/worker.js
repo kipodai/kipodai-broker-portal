@@ -1,9 +1,9 @@
 import { handleLogin, handleLogout, hasValidGateCookie, isGatedPath, loginRedirectUrl } from './gate.js';
 
-const unauthorized = () => new Response('This KipodAI preview is private.', {
+const unauthorized = () => new Response('This Spike Retail preview is private.', {
   status: 401,
   headers: {
-    'WWW-Authenticate': 'Basic realm="KipodAI preview", charset="UTF-8"',
+    'WWW-Authenticate': 'Basic realm="Spike Retail preview", charset="UTF-8"',
     'Cache-Control': 'no-store',
     'Content-Type': 'text/plain; charset=UTF-8'
   }

@@ -4,7 +4,7 @@ const options = {
   focus: ['Turn noise into a focused next move.', 'Surface the exceptions that matter, with enough context for your team to act quickly.', '3', 'DCs below WoS']
 };
 if (['/client-portal', '/login'].includes(window.location.pathname)) {
-  document.querySelector('main').innerHTML = `<section class="access"><img class="access-mascot" src="/hedgehog-door.png" alt="" /><div><h1>Your reports are ready.</h1><a class="button" href="https://shiftretailgroup.kipodai.com/login">Sign in →</a><small><a href="mailto:hello@kipodai.com?subject=KipodAI%20client%20portal%20access">Contact KipodAI →</a></small></div></section>`;
+  document.querySelector('main').innerHTML = `<section class="access"><img class="access-mascot" src="/hedgehog-door.png" alt="" /><div><h1>Your reports are ready.</h1><a class="button" href="https://shiftretailgroup.kipodai.com/login">Sign in →</a><small><a href="mailto:hello@kipodai.com?subject=Spike%20Retail%20client%20portal%20access">Contact Spike Retail →</a></small></div></section>`;
 } else document.querySelectorAll('.tabs button').forEach((button) => button.addEventListener('click', () => {
   document.querySelector('.tabs button.active').classList.remove('active'); button.classList.add('active');
   const [title, copy, number, label] = options[button.dataset.key];
