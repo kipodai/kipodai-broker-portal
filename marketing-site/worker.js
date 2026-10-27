@@ -9,10 +9,19 @@ const unauthorized = () => new Response('This Spike Retail preview is private.',
   }
 });
 
+// The site moved from kipodai.com to spikeretail.com. The old hosts stay bound
+// to this Worker only to send visitors on, keeping the path and query.
+const CANONICAL_HOST = 'spikeretail.com';
+const LEGACY_HOSTS = new Set(['kipodai.com', 'www.kipodai.com', 'www.spikeretail.com']);
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const { pathname } = url;
+
+    if (LEGACY_HOSTS.has(url.hostname)) {
+      return Response.redirect(`https://${CANONICAL_HOST}${pathname}${url.search}`, 301);
+    }
 
     // Preview deployment: the whole site sits behind Basic auth. It is on when
     // the config var PREVIEW_BASIC_AUTH is set (wrangler.jsonc) OR the

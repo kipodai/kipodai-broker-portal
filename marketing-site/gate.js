@@ -11,7 +11,7 @@ export const LOGIN_PATH = '/product-tour.html';
 export const DEFAULT_NEXT = '/demos/';
 // Absolute origins a login may send the visitor back to. Anything else falls
 // back to DEFAULT_NEXT, so the login redirect cannot be used as an open redirect.
-export const ALLOWED_NEXT_ORIGINS = ['https://demo.kipodai.com'];
+export const ALLOWED_NEXT_ORIGINS = ['https://demo.spikeretail.com'];
 
 const enc = new TextEncoder();
 
@@ -123,7 +123,7 @@ const json = (status, body, headers = {}) =>
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...headers },
   });
 
-// Clears the cookie for every *.kipodai.com host (the demo Worker reads the
+// Clears the cookie for every *.spikeretail.com host (the demo Worker reads the
 // same one). POST only, same-origin only, so another site cannot sign a visitor
 // out. Needs no secrets: it works even if the gate is misconfigured.
 export async function handleLogout(request, env) {

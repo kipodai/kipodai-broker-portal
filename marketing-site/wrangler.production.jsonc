@@ -13,7 +13,15 @@
     "run_worker_first": true,
     "not_found_handling": "single-page-application"
   },
+  // Legacy hosts (kipodai.com, www.kipodai.com) and www.spikeretail.com are
+  // bound only so the Worker can 301 them to https://spikeretail.com.
+  "routes": [
+    { "pattern": "spikeretail.com", "custom_domain": true },
+    { "pattern": "www.spikeretail.com", "custom_domain": true },
+    { "pattern": "kipodai.com", "custom_domain": true },
+    { "pattern": "www.kipodai.com", "custom_domain": true }
+  ],
   "vars": {
-    "COOKIE_DOMAIN": ".kipodai.com"
+    "COOKIE_DOMAIN": ".spikeretail.com"
   }
 }

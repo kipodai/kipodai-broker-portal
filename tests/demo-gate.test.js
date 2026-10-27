@@ -86,9 +86,9 @@ describe('cookie helpers', () => {
     expect(parseCookie('xkipod_demo=nope', COOKIE_NAME)).toBeNull();
   });
   it('builds a hardened cookie', () => {
-    const c = buildSetCookie('T', { domain: '.kipodai.com', secure: true });
+    const c = buildSetCookie('T', { domain: '.spikeretail.com', secure: true });
     expect(c).toContain(`${COOKIE_NAME}=T`);
-    for (const attr of ['HttpOnly', 'Secure', 'SameSite=Lax', 'Path=/', `Max-Age=${COOKIE_TTL_SECONDS}`, 'Domain=.kipodai.com']) {
+    for (const attr of ['HttpOnly', 'Secure', 'SameSite=Lax', 'Path=/', `Max-Age=${COOKIE_TTL_SECONDS}`, 'Domain=.spikeretail.com']) {
       expect(c).toContain(attr);
     }
   });
@@ -101,16 +101,16 @@ describe('cookie helpers', () => {
 
 describe('cookieDomainFor', () => {
   it.each([
-    ['kipodai.com', '.kipodai.com', '.kipodai.com'],
-    ['www.kipodai.com', '.kipodai.com', '.kipodai.com'],
-    ['demo.kipodai.com', 'kipodai.com', '.kipodai.com'],
-    ['127.0.0.1', '.kipodai.com', ''],
-    ['localhost', '.kipodai.com', ''],
-    ['x.workers.dev', '.kipodai.com', ''],
-    ['evilkipodai.com', '.kipodai.com', ''],
-    ['kipodai.com.evil.com', '.kipodai.com', ''],
-    ['kipodai.com', '', ''],
-    ['kipodai.com', undefined, ''],
+    ['spikeretail.com', '.spikeretail.com', '.spikeretail.com'],
+    ['www.spikeretail.com', '.spikeretail.com', '.spikeretail.com'],
+    ['demo.spikeretail.com', 'spikeretail.com', '.spikeretail.com'],
+    ['127.0.0.1', '.spikeretail.com', ''],
+    ['localhost', '.spikeretail.com', ''],
+    ['x.workers.dev', '.spikeretail.com', ''],
+    ['evilspikeretail.com', '.spikeretail.com', ''],
+    ['spikeretail.com.evil.com', '.spikeretail.com', ''],
+    ['spikeretail.com', '', ''],
+    ['spikeretail.com', undefined, ''],
   ])('%s with %j -> %j', (host, configured, out) => {
     expect(cookieDomainFor(host, configured)).toBe(out);
   });
@@ -134,14 +134,14 @@ describe('safeNext (no open redirect)', () => {
     ['/demos/', '/demos/'],
     ['/demos/shelf/', '/demos/shelf/'],
     ['/demos', '/demos'],
-    ['https://demo.kipodai.com/', 'https://demo.kipodai.com/'],
-    ['https://demo.kipodai.com/map', 'https://demo.kipodai.com/map'],
+    ['https://demo.spikeretail.com/', 'https://demo.spikeretail.com/'],
+    ['https://demo.spikeretail.com/map', 'https://demo.spikeretail.com/map'],
     ['//evil.com', '/demos/'],
     ['/\\evil.com', '/demos/'],
     ['https://evil.com/demos/', '/demos/'],
-    ['http://demo.kipodai.com/', '/demos/'],
-    ['https://demo.kipodai.com.evil.com/', '/demos/'],
-    ['https://demo.kipodai.com@evil.com/', '/demos/'],
+    ['http://demo.spikeretail.com/', '/demos/'],
+    ['https://demo.spikeretail.com.evil.com/', '/demos/'],
+    ['https://demo.spikeretail.com@evil.com/', '/demos/'],
     ['/demos/../admin', '/demos/'],
     ['/admin', '/demos/'],
     ['/demosx', '/demos/'],
@@ -155,8 +155,8 @@ describe('safeNext (no open redirect)', () => {
 describe('loginRedirectUrl', () => {
   it('is relative on the marketing site and absolute from the demo host', () => {
     expect(loginRedirectUrl('', '/demos/shelf/')).toBe('/product-tour.html?demo=1&next=%2Fdemos%2Fshelf%2F');
-    expect(loginRedirectUrl('https://kipodai.com', 'https://demo.kipodai.com/'))
-      .toBe('https://kipodai.com/product-tour.html?demo=1&next=https%3A%2F%2Fdemo.kipodai.com%2F');
+    expect(loginRedirectUrl('https://spikeretail.com', 'https://demo.spikeretail.com/'))
+      .toBe('https://spikeretail.com/product-tour.html?demo=1&next=https%3A%2F%2Fdemo.spikeretail.com%2F');
   });
 });
 
@@ -169,16 +169,16 @@ const makeEnv = (over = {}) => {
     served,
     DEMO_PASSWORD: 'kipodtour',
     DEMO_GATE_SECRET: SECRET,
-    COOKIE_DOMAIN: '.kipodai.com',
+    COOKIE_DOMAIN: '.spikeretail.com',
     ASSETS: { fetch: async (req) => { served.push(new URL(req.url).pathname); return new Response('asset', { headers: { 'Cache-Control': 'public, max-age=60' } }); } },
     ...over,
   };
 };
-const get = (path, headers = {}) => new Request(`https://kipodai.com${path}`, { headers });
+const get = (path, headers = {}) => new Request(`https://spikeretail.com${path}`, { headers });
 const login = (body, headers = {}) =>
-  new Request('https://kipodai.com/demo-login', {
+  new Request('https://spikeretail.com/demo-login', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Origin: 'https://kipodai.com', ...headers },
+    headers: { 'Content-Type': 'application/json', Origin: 'https://spikeretail.com', ...headers },
     body: typeof body === 'string' ? body : JSON.stringify(body),
   });
 const cookieFrom = (res) => res.headers.get('Set-Cookie').split(';')[0];
@@ -190,7 +190,7 @@ describe('worker: gate', () => {
       const env = makeEnv();
       const res = await worker.fetch(get(path), env);
       expect(res.status).toBe(302);
-      expect(res.headers.get('Location')).toMatch(/^https:\/\/kipodai\.com\/product-tour\.html\?demo=1&next=/);
+      expect(res.headers.get('Location')).toMatch(/^https:\/\/spikeretail\.com\/product-tour\.html\?demo=1&next=/);
       expect(env.served).toEqual([]);
     },
   );
@@ -237,7 +237,7 @@ describe('worker: login', () => {
     const set = res.headers.get('Set-Cookie');
     expect(set).toMatch(/HttpOnly/);
     expect(set).toMatch(/Secure/);
-    expect(set).toMatch(/Domain=\.kipodai\.com/);
+    expect(set).toMatch(/Domain=\.spikeretail\.com/);
     expect(res.headers.get('Cache-Control')).toBe('no-store');
 
     const page = await worker.fetch(get('/demos/shelf/', { Cookie: cookieFrom(res) }), env);
@@ -248,8 +248,8 @@ describe('worker: login', () => {
 
   it('returns only a safe next target', async () => {
     const env = makeEnv();
-    const ok = await (await worker.fetch(login({ password: 'kipodtour', next: 'https://demo.kipodai.com/' }), env)).json();
-    expect(ok.next).toBe('https://demo.kipodai.com/');
+    const ok = await (await worker.fetch(login({ password: 'kipodtour', next: 'https://demo.spikeretail.com/' }), env)).json();
+    expect(ok.next).toBe('https://demo.spikeretail.com/');
     const evil = await (await worker.fetch(login({ password: 'kipodtour', next: 'https://evil.com/' }), env)).json();
     expect(evil.next).toBe('/demos/');
   });
@@ -291,12 +291,12 @@ describe('worker: login', () => {
   });
 
   it('a request with no Origin header (non-browser client) is still checked on the password', async () => {
-    const req = new Request('https://kipodai.com/demo-login', { method: 'POST', body: JSON.stringify({ password: 'nope' }) });
+    const req = new Request('https://spikeretail.com/demo-login', { method: 'POST', body: JSON.stringify({ password: 'nope' }) });
     expect((await worker.fetch(req, makeEnv())).status).toBe(401);
   });
 
   it('a cookie is host-only and not Secure on plain-http local dev, even if a parent domain is configured', async () => {
-    const env = makeEnv({ COOKIE_DOMAIN: '.kipodai.com' });
+    const env = makeEnv({ COOKIE_DOMAIN: '.spikeretail.com' });
     const req = new Request('http://localhost:8787/demo-login', {
       method: 'POST', headers: { Origin: 'http://localhost:8787' }, body: JSON.stringify({ password: 'kipodtour' }),
     });
@@ -324,7 +324,7 @@ describe('session length', () => {
 
 describe('worker: logout', () => {
   const logout = (headers = {}, method = 'POST') =>
-    new Request('https://kipodai.com/demo-logout', { method, headers: { Origin: 'https://kipodai.com', ...headers } });
+    new Request('https://spikeretail.com/demo-logout', { method, headers: { Origin: 'https://spikeretail.com', ...headers } });
 
   it('clears the shared cookie with the same scope it was issued with', async () => {
     const res = await worker.fetch(logout(), makeEnv());
@@ -332,7 +332,7 @@ describe('worker: logout', () => {
     expect(await res.json()).toEqual({ ok: true });
     const set = res.headers.get('Set-Cookie');
     expect(set).toMatch(new RegExp(`^${COOKIE_NAME}=;`));
-    for (const attr of ['Max-Age=0', 'Path=/', 'HttpOnly', 'Secure', 'SameSite=Lax', 'Domain=.kipodai.com']) {
+    for (const attr of ['Max-Age=0', 'Path=/', 'HttpOnly', 'Secure', 'SameSite=Lax', 'Domain=.spikeretail.com']) {
       expect(set).toContain(attr);
     }
     expect(res.headers.get('Cache-Control')).toBe('no-store');
@@ -355,7 +355,7 @@ describe('worker: logout', () => {
 
   it.each([
     ['GET', () => logout({}, 'GET'), 405],
-    ['PUT', () => new Request('https://kipodai.com/demo-logout', { method: 'PUT' }), 405],
+    ['PUT', () => new Request('https://spikeretail.com/demo-logout', { method: 'PUT' }), 405],
     ['a cross-site POST (cannot sign someone else out)', () => logout({ Origin: 'https://evil.com' }), 403],
   ])('%s is refused', async (_n, make, status) => {
     const res = await worker.fetch(make(), makeEnv());
@@ -365,7 +365,7 @@ describe('worker: logout', () => {
 
   it('is host-only and not Secure on plain-http local dev, like login', async () => {
     const req = new Request('http://localhost:8787/demo-logout', { method: 'POST', headers: { Origin: 'http://localhost:8787' } });
-    const set = (await worker.fetch(req, makeEnv({ COOKIE_DOMAIN: '.kipodai.com' }))).headers.get('Set-Cookie');
+    const set = (await worker.fetch(req, makeEnv({ COOKIE_DOMAIN: '.spikeretail.com' }))).headers.get('Set-Cookie');
     expect(set).not.toMatch(/Secure/);
     expect(set).not.toMatch(/Domain=/);
     expect(set).toContain('Max-Age=0');

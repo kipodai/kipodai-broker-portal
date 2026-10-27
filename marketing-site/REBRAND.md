@@ -44,8 +44,10 @@ The following remain unchanged because they belong to the still-live KipodAI inf
 
 - Mail delivery remains `hello@kipodai.com`.
 - The `Client portal` path and `https://shiftretailgroup.kipodai.com/login` destination remain unchanged.
-- The demo link continues to use `https://demo.kipodai.com/`.
-- `gate.js` retains `ALLOWED_NEXT_ORIGINS = ['https://demo.kipodai.com']`.
-- `wrangler.production.jsonc` retains `COOKIE_DOMAIN = '.kipodai.com'`.
 
-For `/demos` to work from `spikeretail.com`, its gated redirect flow must allow the new marketing origin and the authentication cookie must be issued for a domain accessible to that origin. A `.kipodai.com` cookie cannot be shared with `spikeretail.com`; that requires a separate cookie/session arrangement or moving the demo service under the new domain.
+## Domain move to spikeretail.com
+
+- Marketing site: `spikeretail.com`. `kipodai.com`, `www.kipodai.com` and `www.spikeretail.com` are bound to the same Worker only to 301 to the apex, keeping path and query (`worker.js`, `wrangler.production.jsonc`).
+- Demo: `demo.spikeretail.com`. `gate.js` allows only that origin, and `COOKIE_DOMAIN` is `.spikeretail.com`, so one cookie covers the marketing site and the demo.
+- Cookies issued on `.kipodai.com` are not accepted on the new hosts, so visitors sign in once more.
+- Deploy order: set `DEMO_PASSWORD`/`DEMO_GATE_SECRET`, deploy this Worker, then deploy the demo Worker (see the demo dashboard README).
