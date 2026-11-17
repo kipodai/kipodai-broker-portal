@@ -21,6 +21,7 @@
     { "pattern": "kipodai.com", "custom_domain": true },
     { "pattern": "www.kipodai.com", "custom_domain": true }
   ],
+  "services": [{ "binding": "DASHBOARD", "service": "kipodai-demo-dashboard" }],
   "vars": {
     "COOKIE_DOMAIN": ".spikeretail.com"
   }

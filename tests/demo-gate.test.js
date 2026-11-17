@@ -402,3 +402,18 @@ describe('worker: preview deployment keeps its Basic auth', () => {
     expect(res.status).toBe(302);
   });
 });
+
+describe('forecast demo entry', () => {
+  it('sends signed-out visitors to login with the forecast return path', async () => {
+    const response = await worker.fetch(get('/dashboard/forecast'), makeEnv());
+    expect(response.status).toBe(302);
+    expect(new URL(response.headers.get('Location')).searchParams.get('next')).toBe('/dashboard/forecast');
+    expect(safeNext('/dashboard/forecast')).toBe('/dashboard/forecast');
+  });
+  it('opens the forecast tab for a signed-in visitor', async () => {
+    const token = await signToken(SECRET, Math.floor(Date.now() / 1000) + 3600);
+    const response = await worker.fetch(get('/dashboard/forecast', { Cookie: `${COOKIE_NAME}=${token}` }), makeEnv());
+    expect(response.status).toBe(302);
+    expect(response.headers.get('Location')).toBe('https://spikeretail.com/dashboard#forecast');
+  });
+});

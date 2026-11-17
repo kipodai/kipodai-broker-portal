@@ -99,9 +99,11 @@ export function isGatedPath(pathname) {
 
 export function safeNext(next) {
   if (typeof next !== 'string' || !next) return DEFAULT_NEXT;
+  if (/^\/dashboard(?:\/[A-Za-z0-9._~\-/]*)?$/.test(next) && !next.includes('..')) return next;
   if (/^\/demos(?:\/[A-Za-z0-9._~\-/]*)?$/.test(next) && !next.includes('..')) return next;
   try {
     const url = new URL(next);
+    if (url.origin === 'https://spikeretail.com' && (url.pathname === '/dashboard' || url.pathname.startsWith('/dashboard/'))) return url.href;
     if (ALLOWED_NEXT_ORIGINS.includes(url.origin)) return url.href;
   } catch { /* not an absolute URL */ }
   return DEFAULT_NEXT;

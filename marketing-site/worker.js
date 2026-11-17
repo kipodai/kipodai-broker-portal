@@ -41,6 +41,31 @@ export default {
     if (pathname === '/demo-login') return handleLogin(request, env);
     if (pathname === '/demo-logout') return handleLogout(request, env);
 
+    if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) {
+      if (!(await hasValidGateCookie(request, env))) {
+        return Response.redirect(new URL(loginRedirectUrl('', pathname), url).href, 302);
+      }
+      if (pathname === '/dashboard/forecast') {
+        return Response.redirect(new URL('/dashboard#forecast', url).href, 302);
+      }
+      const upstream = new URL(request.url);
+      upstream.pathname = pathname.slice('/dashboard'.length) || '/';
+      const response = await env.DASHBOARD.fetch(new Request(upstream, request));
+      if (response.headers.get('Content-Type')?.includes('text/html')) {
+        return new HTMLRewriter().on('[src], [href]', {
+          element(element) {
+            for (const attr of ['src', 'href']) {
+              const value = element.getAttribute(attr);
+              if (value?.startsWith('/') && !value.startsWith('//')) {
+                element.setAttribute(attr, '/dashboard' + value);
+              }
+            }
+          }
+        }).transform(response);
+      }
+      return response;
+    }
+
     // Everything under /demos is private. The public marketing pages fall
     // straight through to static assets unchanged.
     if (isGatedPath(pathname)) {
